@@ -1,0 +1,96 @@
+.TH testicle 1 "MAR 2007" "Testicle" "User Manuals"
+.
+.
+.SH "NAME"
+testicle \- build C++ unit tests
+.
+.
+.SH "SYNOPSIS"
+.B testicle
+.RB [ \-o
+.IR outfile ]
+.RB [ --tests = \fIpattern ]
+.RB [ \-e ]
+.I infile
+\&...
+.br
+.B testicle
+.B --help
+.br
+.B testicle
+.B --version
+.
+.
+.SH "DESCRIPTION"
+.B testicle
+generates an executable test program from one or more object files
+containing test functions, referred to here under the popular name
+.IR "unit tests" .
+.PP
+It works by invoking
+.B make
+to compile or link, by invoking
+.B nm
+to find symbols likely to be tests in object files,
+and by generating the C++ source for the test executive and command-line interface.
+.
+.
+.SH "TEST FUNCTIONS"
+.SH "TEST FUNCTIONS"
+
+.ig
+reqs on the test functions (exceptions, etc)
+header file
+
+reqs on the object code
+
+makefile needed to compile and to link
+
+chars of the resulting test
+..
+.
+.
+.SH "OPTIONS"
+.
+.
+.IP \-o\ \fIoutfile
+Name the executable test program.
+If not provided, it will be named, simply,
+.BR test .
+.
+.
+.IP --tests=\fIpattern
+Assume symbols matching the POSIX extended regular expression
+.I pattern
+are unit tests, instead of any function whose name starts with
+.BR test .
+.
+.IP \-e
+Execute the test program after building it.
+.
+.
+.IP --help
+Print the usage message and exit.
+.
+.
+.IP --version,\ \-V
+Print version information and exit.
+.
+.
+.SH "EXIT STATUS"
+.B 0
+if and only if the test program is built correctly.
+If the
+.B \-e
+option was given, it returns whatever the test program returns.
+.
+.
+.SH "AUTHOR"
+J\(:orgen Grahn
+.I \[fo]grahn+src@snipabacken.dyndns.org\[fc]
+.
+.
+.SH "SEE ALSO"
+.BR make (1),
+.BR nm (1),
+.BR regex (7).
