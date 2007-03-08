@@ -1,0 +1,52 @@
+#!/usr/bin/env python
+# -*- coding: iso-8859-1 -*-
+#
+# $Id$
+#
+# Copyright (c) 2007 Jörgen Grahn.
+# All rights reserved.
+#
+"""build C++ unit tests
+"""
+import os
+
+if __name__ == "__main__":
+    import sys
+    import re
+    import getopt
+
+    prog = os.path.split(sys.argv[0])[1]
+    usage = ('usage: %(prog)s [-o outfile] [--tests=pattern] [-e] infile ...\n'
+             '       %(prog)s --help\n'
+             '       %(prog)s --version') % locals()
+    execute = 0
+    outfile = 'test'
+    testres = []
+
+    try:
+        opts, infiles = getopt.getopt(sys.argv[1:], 'o:e',
+                                    ['tests', 'version', 'help'])
+        for opt, value in opts:
+            if opt=='-o':
+                outfile = value
+            if opt=='-e':
+                execute = 1
+            elif opt=='--tests':
+                testres.append(re.compile(value))
+            elif opt=='--version':
+                print "deathlist"
+                print "$Id$"
+                print "Copyright (c) 2007 Jörgen Grahn."
+                print "All rights reserved."
+                sys.exit(0)
+            elif opt=='--help':
+                print usage
+                sys.exit(0)
+        if not infiles:
+            raise ValueError('no input file specified')
+    except (getopt.GetoptError, ValueError), s:
+        print >>sys.stderr, s
+        print >>sys.stderr, usage
+        sys.exit(1)
+
+    sys.exit(0)
