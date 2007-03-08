@@ -34,7 +34,7 @@ if __name__ == "__main__":
             elif opt=='--tests':
                 testres.append(re.compile(value))
             elif opt=='--version':
-                print "deathlist"
+                print prog
                 print "$Id$"
                 print "Copyright (c) 2007 Jörgen Grahn."
                 print "All rights reserved."
