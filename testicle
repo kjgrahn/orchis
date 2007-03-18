@@ -34,60 +34,6 @@ def find_tests(infiles, testres):
     rc = f.close()
     return tests
 
-
-if __name__ == "__main__":
-    import sys
-    import getopt
-
-    prog = os.path.split(sys.argv[0])[1]
-    usage = ('usage: %(prog)s [-o outfile] [--tests=pattern] [-e] infile ...\n'
-             '       %(prog)s --help\n'
-             '       %(prog)s --version') % locals()
-    execute = 0
-    outfile = 'test'
-    testres = []
-
-    try:
-        opts, infiles = getopt.getopt(sys.argv[1:], 'o:e',
-                                    ['tests=', 'version', 'help'])
-        for opt, value in opts:
-            if opt=='-o':
-                outfile = value
-            if opt=='-e':
-                execute = 1
-            elif opt=='--tests':
-                testres.append(re.compile(value))
-            elif opt=='--version':
-                print prog
-                print "$Id$"
-                print "Copyright (c) 2007 Jörgen Grahn."
-                print "All rights reserved."
-                sys.exit(0)
-            elif opt=='--help':
-                print usage
-                sys.exit(0)
-        if not infiles:
-            raise ValueError('no input file specified')
-        if execute:
-            raise ValueError('not supported XXX')
-    except (getopt.GetoptError, ValueError, re.error), s:
-        print >>sys.stderr, s
-        print >>sys.stderr, usage
-        sys.exit(1)
-
-    if not testres:
-        testres.append(re.compile(r'^test'))
-
-    if not make_testobjs(infiles):
-        sys.exit(1)
-
-    tests = find_tests(infiles, testres)
-    for t in tests:
-        print t
-
-    sys.exit(0)
-
-
 def source(testnames, f):
     """Generate main test program source to file-like object 'w',
     for the test functions listed in sequence 'testnames'.
@@ -305,3 +251,56 @@ int main(int argc, char ** argv)
     return p.rc();
 }
 """)
+
+
+if __name__ == "__main__":
+    import sys
+    import getopt
+
+    prog = os.path.split(sys.argv[0])[1]
+    usage = ('usage: %(prog)s [-o outfile] [--tests=pattern] [-e] infile ...\n'
+             '       %(prog)s --help\n'
+             '       %(prog)s --version') % locals()
+    execute = 0
+    outfile = 'test'
+    testres = []
+
+    try:
+        opts, infiles = getopt.getopt(sys.argv[1:], 'o:e',
+                                    ['tests=', 'version', 'help'])
+        for opt, value in opts:
+            if opt=='-o':
+                outfile = value
+            if opt=='-e':
+                execute = 1
+            elif opt=='--tests':
+                testres.append(re.compile(value))
+            elif opt=='--version':
+                print prog
+                print "$Id$"
+                print "Copyright (c) 2007 Jörgen Grahn."
+                print "All rights reserved."
+                sys.exit(0)
+            elif opt=='--help':
+                print usage
+                sys.exit(0)
+        if not infiles:
+            raise ValueError('no input file specified')
+        if execute:
+            raise ValueError('not supported XXX')
+    except (getopt.GetoptError, ValueError, re.error), s:
+        print >>sys.stderr, s
+        print >>sys.stderr, usage
+        sys.exit(1)
+
+    if not testres:
+        testres.append(re.compile(r'^test'))
+
+    if not make_testobjs(infiles):
+        sys.exit(1)
+
+    tests = find_tests(infiles, testres)
+    for t in tests:
+        print t
+
+    sys.exit(0)
