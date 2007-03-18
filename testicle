@@ -10,6 +10,8 @@
 """
 import os
 
+
+
 if __name__ == "__main__":
     import sys
     import re
@@ -50,3 +52,222 @@ if __name__ == "__main__":
         sys.exit(1)
 
     sys.exit(0)
+
+
+def source(testnames, f):
+    """Generate main test program source to file-like object 'w',
+    for the test functions listed in sequence 'testnames'.
+    """
+    w = f.write
+    w(r"""#include <iostream>
+#include <algorithm>
+#include <vector>
+#include <cstring>
+#include <unistd.h>
+
+#include <testicle.h>
+
+"""
+      w(r"""
+void test_that_passes();
+void test_that_fails();
+void test_that_borks();
+""")
+
+      w(r"""
+namespace {
+
+    class Progress {
+    public:
+	Progress(std::ostream& os, bool verbose)
+	    : os_(os),
+	      verbose_(verbose),
+	      pass_(0),
+	      fail_(0),
+	      error_(0)
+	{}
+
+	void begin(const char * name);
+	void pass();
+	void fail();
+	void error();
+	void done();
+	int rc() const { return !(fail_+error_); }
+
+    private:
+	std::ostream& os_;
+	const bool verbose_;
+	int pass_;
+	int fail_;
+	int error_;
+    };
+
+    void Progress::begin(const char * name)
+    {
+	if(verbose_) {
+	    os_ << name << " ... " << std::flush;
+	}
+    }
+
+    void Progress::pass()
+    {
+	pass_++;
+	if(verbose_) {
+	    os_ << "ok" << std::endl;
+	}
+	else {
+	    os_ << '.' << std::flush;
+	}
+    }
+
+    void Progress::fail()
+    {
+	fail_++;
+	if(verbose_) {
+	    os_ << "FAIL" << std::endl;
+	}
+	else {
+	    os_ << 'F' << std::flush;
+	}
+    }
+
+    void Progress::error()
+    {
+	error_++;
+	if(verbose_) {
+	    os_ << "ERROR" << std::endl;
+	}
+	else {
+	    os_ << 'E' << std::flush;
+	}
+    }
+
+    void Progress::done()
+    {
+	if(!verbose_) {
+	    os_ << '\n';
+	}
+	os_ << "----------------------------------------------------------------------\n";
+	if(fail_+error_ == 0) {
+	    os_ << "OK (" << pass_ << " tests)\n";
+	}
+	else {
+	    int total = pass_ + fail_ + error_;
+	    os_ << "FAILED (" << total << " tests; "
+		<< fail_ << " FAIL, "
+		<< error_ <<" ERROR)\n";
+	}
+    }
+
+
+    struct Entry {
+	char * name;
+	void (*f)();
+    };
+
+
+    class NonMatch {
+    public:
+	NonMatch(char ** begin, char ** end)
+	    : begin_(begin),
+	      end_(end)
+	{}
+
+	bool operator() (const Entry& e) const;
+
+    private:
+	char ** const begin_;
+	char ** const end_;
+    };
+
+    bool NonMatch::operator() (const Entry& e) const
+    {
+	char ** i = begin_;
+	while(i!=end_) {
+	    if(std::strstr(e.name, *i)==e.name) return false;
+	    ++i;
+	}
+	return true;
+    }
+}
+
+
+int main(int argc, char ** argv)
+{
+    const char * const prog = argv[0];
+
+""")
+
+      w(r"""
+    static const Entry entries[] = {
+	{"test_that_passes", test_that_passes},
+	{"test_that_fails", test_that_fails},
+	{"test_that_borks", test_that_borks},
+    };
+""")
+
+      w(r"""
+    static const size_t NENTRIES = sizeof(entries)/sizeof(entries[0]);
+
+    bool verbose = false;
+    bool just_list = false;
+
+    int ch;
+    while((ch = getopt(argc, argv, "+vl")) != -1) {
+	switch(ch) {
+	case 'v':
+	    verbose = true;
+	    break;
+	case 'l':
+	    just_list = true;
+	    break;
+	case '?':
+	default:
+	    std::cerr << "usage: " << prog << " [-v] [pattern ...]\n"
+		      << "       " << prog << " -l [pattern ...]\n";
+	    return 0;
+	}
+    }
+
+    std::vector<Entry> chosen(entries, entries+NENTRIES);
+    if(optind!=argc) {
+	chosen.erase(std::remove_if(chosen.begin(), chosen.end(),
+				    NonMatch(argv+optind, argv+argc)),
+		     chosen.end());
+    }
+
+    if(just_list) {
+	for(std::vector<Entry>::const_iterator i = chosen.begin();
+	    i!=chosen.end();
+	    ++i) {
+	    std::cout << i->name << '\n';
+	}
+	return 0;
+    }
+
+    Progress p(std::cout, verbose);
+
+    for(std::vector<Entry>::const_iterator i = chosen.begin();
+	i!=chosen.end();
+	++i) {
+
+	const Entry& e = *i;
+
+	p.begin(e.name);
+
+	try {
+	    e.f();
+	    p.pass();
+	}
+	catch(testicle::AssertionError& err) {
+	    p.fail();
+	}
+	catch(...) {
+	    p.error();
+	}
+    }
+    p.done();
+
+    return p.rc();
+}
+""")
