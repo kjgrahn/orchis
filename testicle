@@ -11,6 +11,10 @@
 import os
 
 
+def make_testobjs(infiles):
+    pass
+
+
 
 if __name__ == "__main__":
     import sys
@@ -46,10 +50,17 @@ if __name__ == "__main__":
                 sys.exit(0)
         if not infiles:
             raise ValueError('no input file specified')
+        if execute:
+            raise ValueError('not supported XXX')
     except (getopt.GetoptError, ValueError, re.error), s:
         print >>sys.stderr, s
         print >>sys.stderr, usage
         sys.exit(1)
+
+    if not testres:
+        testres.append(re.compile(r'^test'))
+
+    tests = make_testobjs(infiles)
 
     sys.exit(0)
 
@@ -67,14 +78,14 @@ def source(testnames, f):
 
 #include <testicle.h>
 
-"""
-      w(r"""
+""")
+    w(r"""
 void test_that_passes();
 void test_that_fails();
 void test_that_borks();
 """)
 
-      w(r"""
+    w(r"""
 namespace {
 
     class Progress {
@@ -198,7 +209,7 @@ int main(int argc, char ** argv)
 
 """)
 
-      w(r"""
+    w(r"""
     static const Entry entries[] = {
 	{"test_that_passes", test_that_passes},
 	{"test_that_fails", test_that_fails},
@@ -206,7 +217,7 @@ int main(int argc, char ** argv)
     };
 """)
 
-      w(r"""
+    w(r"""
     static const size_t NENTRIES = sizeof(entries)/sizeof(entries[0]);
 
     bool verbose = false;
