@@ -9,16 +9,34 @@
 """build C++ unit tests
 """
 import os
+import re
 
 
 def make_testobjs(infiles):
-    pass
+    """Make the object files 'infiles', returning success
+    """
+    f = os.popen('make %s' % ' '.join(['"%s"' % s for s in infiles]))
+    sys.stdout.write(f.read())
+    return not f.close()
 
+
+def find_tests(infiles, testres):
+    """Find and return all symbols
+    matching any of the REs 'testres'
+    in object files 'infiles'.
+    """
+    funre = re.compile(r'^(\w+)\(\)\sT\s')
+    f = os.popen('nm -CP %s' % ' '.join(['"%s"' % s for s in infiles]))
+    tests = []
+    for s in f:
+        m = funre.match(s)
+        if m: tests.append(m.group(1))
+    rc = f.close()
+    return tests
 
 
 if __name__ == "__main__":
     import sys
-    import re
     import getopt
 
     prog = os.path.split(sys.argv[0])[1]
@@ -60,7 +78,12 @@ if __name__ == "__main__":
     if not testres:
         testres.append(re.compile(r'^test'))
 
-    tests = make_testobjs(infiles)
+    if not make_testobjs(infiles):
+        sys.exit(1)
+
+    tests = find_tests(infiles, testres)
+    for t in tests:
+        print t
 
     sys.exit(0)
 
