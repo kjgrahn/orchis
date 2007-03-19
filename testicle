@@ -48,11 +48,9 @@ def source(testnames, f):
 #include <testicle.h>
 
 """)
-    w(r"""
-void test_that_passes();
-void test_that_fails();
-void test_that_borks();
-""")
+
+    for name in testnames:
+        w('void %s();\n' % name)
 
     w(r"""
 namespace {
@@ -176,17 +174,14 @@ int main(int argc, char ** argv)
 {
     const char * const prog = argv[0];
 
-""")
-
-    w(r"""
     static const Entry entries[] = {
-	{"test_that_passes", test_that_passes},
-	{"test_that_fails", test_that_fails},
-	{"test_that_borks", test_that_borks},
-    };
 """)
 
-    w(r"""
+    for name in testnames:
+        w('\t{"%s", %s},\n' % (name, name))
+
+    w(r"""    };
+
     static const size_t NENTRIES = sizeof(entries)/sizeof(entries[0]);
 
     bool verbose = false;
@@ -300,7 +295,10 @@ if __name__ == "__main__":
         sys.exit(1)
 
     tests = find_tests(infiles, testres)
-    for t in tests:
-        print t
+
+    outsource = '%s.cc' % outfile
+    of = open(outsource, 'w')
+    source(tests, of)
+    of.close()
 
     sys.exit(0)
