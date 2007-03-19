@@ -12,8 +12,8 @@ import os
 import re
 
 
-def make_testobjs(infiles):
-    """Make the object files 'infiles', returning success
+def make(infiles):
+    """Make the files 'infiles' by invoking make(1), returning success.
     """
     f = os.popen('make %s' % ' '.join(['"%s"' % s for s in infiles]))
     sys.stdout.write(f.read())
@@ -291,7 +291,7 @@ if __name__ == "__main__":
     if not testres:
         testres.append(re.compile(r'^test'))
 
-    if not make_testobjs(infiles):
+    if not make(infiles):
         sys.exit(1)
 
     tests = find_tests(infiles, testres)
@@ -300,5 +300,8 @@ if __name__ == "__main__":
     of = open(outsource, 'w')
     source(tests, of)
     of.close()
+
+    if not make([outfile]):
+        sys.exit(1)
 
     sys.exit(0)
