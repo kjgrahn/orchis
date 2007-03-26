@@ -11,7 +11,6 @@ testicle \- build C++ unit tests
 .RB [ \-o
 .IR outfile ]
 .RB [ --tests = \fIpattern ]
-.RB [ \-e ]
 .I infile
 \&...
 .br
@@ -24,17 +23,17 @@ testicle \- build C++ unit tests
 .
 .SH "DESCRIPTION"
 .B testicle
-generates an executable test program from one or more object files
-containing test functions, referred to here under the popular name
-.IR "unit tests" .
+accepts one or more object files
+containing test functions (referred to here under the popular name
+.IR "unit tests" )
+and generates C++ source for driving those tests.
 .PP
 It works by invoking
-.B make
-to compile or link, by invoking
 .B nm
-to find symbols likely to be tests in object files,
-and by generating the C++ source for the test executive
-and command-line interface.
+to find symbols likely to be tests in those object files.
+Compiling, linking and executing the tests
+is left to the user,
+through a Makefile or other means.
 .
 .
 .SS "Test functions"
@@ -43,43 +42,26 @@ Test functions must have the signature
 .IP
 \fIvoid test...();\fP
 .PP
-There is no requirement to group them into classes.
+and may be inside the global or any other namespace.
+There is no requirement to group the tests into classes.
 In fact, there is no direct support for doing so.
 .PP
-Executing one results in one out of three things:
+Executing a test results in one out of three things:
 .IP \fB\s-2PASS\s0
 the function returns normally
 .IP \fB\s-2FAIL\s0
 the function throws a
 .B TesticleAssertionError
-exception.
-.IP \fB\s-2ERROR\s0
-the function throws any other exception.
-.PP
-Some utility functions for throwing
+exception. Uutility functions for throwing
 .B TesticleAssertionError
 are available in
 .BR testicle.h .
-.
-.
-.SS "Building"
-.B testicle
-invokes
-.IP
-\fBmake\fP \fIinfile infile\fP ...
+.IP \fB\s-2ERROR\s0
+the function throws any other exception.
 .PP
-to (re)generate its input files.
-It is up to the user to configure her environment to make this happen,
-typically by writing suitable rules in her
-.BR Makefile .
-.PP
-Similarly, the executable test is created by invoking
-.IP
-\fBmake test\fP
-.PP
-unless the
-.B \-o
-option has been used to rename it.
+Of course, the test may also crash, run forever, or call
+.BR std::exit ()
+or some similar function.
 .
 .
 .SS "The test program"
@@ -111,19 +93,17 @@ The second form simply lists tests without executing them.
 .
 .
 .IP \-o\ \fIoutfile
-Name the executable test program.
+Name the C++ source test driver.
 If not provided, it will be named, simply,
-.BR test .
+.BR test.cc .
 .
 .
 .IP --tests=\fIpattern
 Assume symbols matching the Perl-compatible regular expression
 .I pattern
-are unit tests, instead of any function whose name starts with
+are unit tests, instead of any function, in any namespace,
+whose name starts with
 .BR test .
-.
-.IP \-e
-Execute the test program after building it.
 .
 .
 .IP --help
@@ -136,10 +116,7 @@ Print version information and exit.
 .
 .SH "EXIT STATUS"
 .B 0
-if and only if the test program is built correctly.
-If the
-.B \-e
-option was given, it returns whatever the test program returns.
+if the test program is generated correctly.
 .
 .
 .SH "AUTHOR"
@@ -151,5 +128,4 @@ This software is released under the
 .
 .
 .SH "SEE ALSO"
-.BR make (1),
 .BR nm (1).

@@ -25,10 +25,10 @@ def find_tests(infiles, testres):
     matching any of the REs 'testres'
     in object files 'infiles'.
     """
-    funre = re.compile(r'^(\w+)\(\)\sT\s')
+    funre = re.compile(r'^(\w+)\(void\)\sT\s')
     f = os.popen('nm -CP %s' % ' '.join(['"%s"' % s for s in infiles]))
     tests = []
-    for s in f:
+    for s in f.xreadlines():
         m = funre.match(s)
         if m: tests.append(m.group(1))
     rc = f.close()
@@ -253,21 +253,18 @@ if __name__ == "__main__":
     import getopt
 
     prog = os.path.split(sys.argv[0])[1]
-    usage = ('usage: %(prog)s [-o outfile] [--tests=pattern] [-e] infile ...\n'
+    usage = ('usage: %(prog)s [-o outfile] [--tests=pattern] infile ...\n'
              '       %(prog)s --help\n'
              '       %(prog)s --version') % locals()
-    execute = 0
-    outfile = 'test'
+    outfile = 'test.cc'
     testres = []
 
     try:
-        opts, infiles = getopt.getopt(sys.argv[1:], 'o:e',
+        opts, infiles = getopt.getopt(sys.argv[1:], 'o:',
                                     ['tests=', 'version', 'help'])
         for opt, value in opts:
             if opt=='-o':
                 outfile = value
-            if opt=='-e':
-                execute = 1
             elif opt=='--tests':
                 testres.append(re.compile(value))
             elif opt=='--version':
@@ -281,27 +278,18 @@ if __name__ == "__main__":
                 sys.exit(0)
         if not infiles:
             raise ValueError('no input file specified')
-        if execute:
-            raise ValueError('not supported XXX')
     except (getopt.GetoptError, ValueError, re.error), s:
         print >>sys.stderr, s
         print >>sys.stderr, usage
         sys.exit(1)
 
     if not testres:
-        testres.append(re.compile(r'^test'))
-
-    if not make(infiles):
-        sys.exit(1)
+        testres.append(re.compile(r'^(.+::)?test'))
 
     tests = find_tests(infiles, testres)
 
-    outsource = '%s.cc' % outfile
-    of = open(outsource, 'w')
+    of = open(outfile, 'w')
     source(tests, of)
     of.close()
-
-    if not make([outfile]):
-        sys.exit(1)
 
     sys.exit(0)
