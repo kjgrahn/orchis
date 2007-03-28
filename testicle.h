@@ -15,49 +15,49 @@ namespace testicle {
     };
 
     template<class M, class N>
-    void assert_eq(M m, N n) {
+    void assert_eq(const M& m, const N& n) {
 	if(m == n) return;
 	throw AssertionError();
     };
 
     template<class M, class N>
-    void assert_neq(M m, N n) {
+    void assert_neq(const M& m, const N& n) {
 	if(m != n) return;
 	throw AssertionError();
     };
 
     template<class M, class N>
-    void assert_lt(M m, N n) {
+    void assert_lt(const M& m, const N& n) {
 	if(m < n) return;
 	throw AssertionError();
     };
 
     template<class M, class N>
-    void assert_gt(M m, N n) {
+    void assert_gt(const M& m, const N& n) {
 	if(m > n) return;
 	throw AssertionError();
     };
 
     template<class T, class C>
-    void assert_in(C container, T t) {
+    void assert_in(const C& container, const T& t) {
 	if(container.find(t) != container.end()) return;
 	throw AssertionError();
     };
 
     template<class T, class Iter>
-    void assert_in(Iter first, Iter last, T t) {
+    void assert_in(Iter first, Iter last, const T& t) {
 	if(std::find(first, last, t) != last) return;
 	throw AssertionError();
     };
 
     template<class T, class C>
-    void assert_not_in(C container, T t) {
+    void assert_not_in(const C& container, const T& t) {
 	if(container.find(t) == container.end()) return;
 	throw AssertionError();
     };
 
     template<class T, class Iter>
-    void assert_not_in(Iter first, Iter last, T t) {
+    void assert_not_in(Iter first, Iter last, const T& t) {
 	if(std::find(first, last, t) == last) return;
 	throw AssertionError();
     };
