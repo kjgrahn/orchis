@@ -40,6 +40,24 @@ def find_tests(infiles, testres):
     rc = f.close()
     return tests
 
+def prototypes(testnames, f):
+    """Write function declarations to 'f',
+    handling namespaces correctly.
+    """
+    w = f.write
+    for name in testnames:
+        n = name.split('::')
+        nss, f = n[:-1], n[-1]
+        indent = 0
+        for ns in nss:
+            w(' ' * indent)
+            w('namespace %s {\n' % ns)
+            indent += 2
+        w(' ' * indent)
+        w('void %s();\n' % f)
+        w('}' * len(nss))
+        w('\n')
+
 def source(testnames, f):
     """Generate main test program source to file-like object 'w',
     for the test functions listed in sequence 'testnames'.
@@ -55,8 +73,7 @@ def source(testnames, f):
 
 """)
 
-    for name in testnames:
-        w('void %s();\n' % name)
+    prototypes(testnames, f)
 
     w(r"""
 namespace {
