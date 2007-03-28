@@ -307,7 +307,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     if not testres:
-        testres.append(re.compile(r'^(.+::)?test'))
+        testres.append(re.compile(r'^(.+::)?test\w*$'))
 
     tests = find_tests(infiles, testres)
 
