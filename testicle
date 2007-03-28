@@ -25,12 +25,18 @@ def find_tests(infiles, testres):
     matching any of the REs 'testres'
     in object files 'infiles'.
     """
-    funre = re.compile(r'^(\w+)\((?:void)?\)\sT\s')
+    funre = re.compile(r'^([\w:]+)\((?:void)?\)\sT\s')
     f = os.popen('nm -CP %s' % ' '.join(['"%s"' % s for s in infiles]))
     tests = []
     for s in f.xreadlines():
         m = funre.match(s)
-        if m: tests.append(m.group(1))
+        if not m:
+            continue
+        fn = m.group(1)
+        for rex in testres:
+            if rex.match(fn):
+                tests.append(fn)
+                break
     rc = f.close()
     return tests
 
