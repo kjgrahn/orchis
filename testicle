@@ -80,9 +80,10 @@ namespace {
 
     class Progress {
     public:
-	Progress(std::ostream& os, bool verbose)
+        Progress(std::ostream& os, bool verbose, int indent)
 	    : os_(os),
 	      verbose_(verbose),
+              indent_(indent),
 	      pass_(0),
 	      fail_(0),
 	      error_(0)
@@ -106,7 +107,9 @@ namespace {
     void Progress::begin(const char * name)
     {
 	if(verbose_) {
-	    os_ << name << " ... " << std::flush;
+           os_ << name
+               << std::string(indent_ - std::strlen(name), ' ')
+               << std::flush;
 	}
     }
 
@@ -208,6 +211,7 @@ int main(int argc, char ** argv)
     static const size_t NENTRIES = sizeof(entries)/sizeof(entries[0]);
 
     bool verbose = false;
+    size_t indentation = 0;
     bool just_list = false;
 
     int ch;
@@ -215,6 +219,10 @@ int main(int argc, char ** argv)
 	switch(ch) {
 	case 'v':
 	    verbose = true;
+            for(size_t i=0; i<NENTRIES; ++i) {
+                indentation = std::max(indentation,
+                                       std::strlen(entries[i].name) + 1);
+            }
 	    break;
 	case 'l':
 	    just_list = true;
@@ -243,7 +251,7 @@ int main(int argc, char ** argv)
 	return 0;
     }
 
-    Progress p(std::cout, verbose);
+    Progress p(std::cout, verbose, indentation);
 
     for(std::vector<Entry>::const_iterator i = chosen.begin();
 	i!=chosen.end();
