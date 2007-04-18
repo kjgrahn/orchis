@@ -99,6 +99,7 @@ namespace {
     private:
 	std::ostream& os_;
 	const bool verbose_;
+        const int indent_;
 	int pass_;
 	int fail_;
 	int error_;
