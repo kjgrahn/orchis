@@ -181,9 +181,10 @@ int main(int argc, char ** argv)
     bool verbose = false;
     size_t indentation = 0;
     bool just_list = false;
+    bool bork_on_fail = false;
 
     int ch;
-    while((ch = getopt(argc, argv, "+vl")) != -1) {
+    while((ch = getopt(argc, argv, "+vlc")) != -1) {
 	switch(ch) {
 	case 'v':
 	    verbose = true;
@@ -195,9 +196,12 @@ int main(int argc, char ** argv)
 	case 'l':
 	    just_list = true;
 	    break;
+	case 'c':
+	    bork_on_fail = true;
+	    break;
 	case '?':
 	default:
-	    std::cerr << "usage: " << prog << " [-v] [pattern ...]\n"
+	    std::cerr << "usage: " << prog << " [-vc] [pattern ...]\n"
 		      << "       " << prog << " -l [pattern ...]\n";
 	    return 0;
 	}
@@ -229,15 +233,21 @@ int main(int argc, char ** argv)
 
 	p.begin(e.name);
 
-	try {
+	if(bork_on_fail) {
 	    e.f();
 	    p.pass();
 	}
-	catch(testicle::AssertionError& err) {
-	    p.fail();
-	}
-	catch(...) {
-	    p.error();
+	else {
+	    try {
+		e.f();
+		p.pass();
+	    }
+	    catch(testicle::AssertionError& err) {
+		p.fail();
+	    }
+	    catch(...) {
+		p.error();
+	    }
 	}
     }
     p.done();
