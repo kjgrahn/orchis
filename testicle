@@ -14,6 +14,7 @@ import re
 
 def make(infiles):
     """Make the files 'infiles' by invoking make(1), returning success.
+    Unused; it was a bad idea.
     """
     f = os.popen('make %s' % ' '.join(['"%s"' % s for s in infiles]))
     sys.stdout.write(f.read())
@@ -67,6 +68,7 @@ def source(testnames, f):
 #include <algorithm>
 #include <vector>
 #include <cstring>
+#include <string>
 #include <unistd.h>
 
 #include <testicle.h>
@@ -75,8 +77,7 @@ def source(testnames, f):
 
     prototypes(testnames, f)
 
-    w(r"""
-namespace {
+    w(r"""namespace {
 
     class Progress {
     public:
@@ -91,22 +92,35 @@ namespace {
 
 	void begin(const char * name);
 	void pass();
-	void fail();
+	void fail(const testicle::AssertionError& error);
 	void error();
 	void done();
 	int rc() const { return fail_+error_!=0; }
 
     private:
+	struct Problem {
+	    Problem(const std::string& nam,
+		    const testicle::AssertionError& err)
+		: name(nam),
+		  error(err)
+	    {}
+	    std::string name;
+	    testicle::AssertionError error;
+	};
+
 	std::ostream& os_;
 	const bool verbose_;
         const int indent_;
 	int pass_;
 	int fail_;
 	int error_;
+	std::string current_;
+	std::vector<Problem> problems_;
     };
 
     void Progress::begin(const char * name)
     {
+	current_ = name;
 	if(verbose_) {
            os_ << name
                << std::string(indent_ - std::strlen(name), ' ')
@@ -125,7 +139,7 @@ namespace {
 	}
     }
 
-    void Progress::fail()
+    void Progress::fail(const testicle::AssertionError& error)
     {
 	fail_++;
 	if(verbose_) {
@@ -134,6 +148,8 @@ namespace {
 	else {
 	    os_ << 'F' << std::flush;
 	}
+
+	problems_.push_back(Problem(current_, error));
     }
 
     void Progress::error()
@@ -149,10 +165,22 @@ namespace {
 
     void Progress::done()
     {
+	static const char hr[] = "----------------------------------------"
+	                         "------------------------------\n";
+
 	if(!verbose_) {
 	    os_ << '\n';
 	}
-	os_ << "----------------------------------------------------------------------\n";
+	os_ << hr;
+
+	for(std::vector<Problem>::const_iterator i = problems_.begin();
+	    i != problems_.end();
+	    ++i) {
+	    os_ << i->name << '\n'
+		<< i->error << '\n'
+		<< hr;
+	}
+
 	if(fail_+error_ == 0) {
 	    os_ << "OK (" << pass_ << " tests)\n";
 	}
@@ -163,7 +191,6 @@ namespace {
 		<< error_ <<" ERROR)\n";
 	}
     }
-
 
     struct Entry {
 	char * name;
@@ -214,9 +241,10 @@ int main(int argc, char ** argv)
     bool verbose = false;
     size_t indentation = 0;
     bool just_list = false;
+    bool bork_on_fail = false;
 
     int ch;
-    while((ch = getopt(argc, argv, "+vl")) != -1) {
+    while((ch = getopt(argc, argv, "+vlc")) != -1) {
 	switch(ch) {
 	case 'v':
 	    verbose = true;
@@ -228,9 +256,12 @@ int main(int argc, char ** argv)
 	case 'l':
 	    just_list = true;
 	    break;
+	case 'c':
+	    bork_on_fail = true;
+	    break;
 	case '?':
 	default:
-	    std::cerr << "usage: " << prog << " [-v] [pattern ...]\n"
+	    std::cerr << "usage: " << prog << " [-vc] [pattern ...]\n"
 		      << "       " << prog << " -l [pattern ...]\n";
 	    return 0;
 	}
@@ -262,15 +293,21 @@ int main(int argc, char ** argv)
 
 	p.begin(e.name);
 
-	try {
+	if(bork_on_fail) {
 	    e.f();
 	    p.pass();
 	}
-	catch(testicle::AssertionError& err) {
-	    p.fail();
-	}
-	catch(...) {
-	    p.error();
+	else {
+	    try {
+		e.f();
+		p.pass();
+	    }
+	    catch(testicle::AssertionError& err) {
+		p.fail(err);
+	    }
+	    catch(...) {
+		p.error();
+	    }
 	}
     }
     p.done();

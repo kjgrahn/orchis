@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <vector>
 #include <cstring>
+#include <string>
 #include <unistd.h>
 
 #include <testicle.h>
@@ -21,22 +22,35 @@ namespace {
 
 	void begin(const char * name);
 	void pass();
-	void fail();
+	void fail(const testicle::AssertionError& error);
 	void error();
 	void done();
 	int rc() const { return fail_+error_!=0; }
 
     private:
+	struct Problem {
+	    Problem(const std::string& nam,
+		    const testicle::AssertionError& err)
+		: name(nam),
+		  error(err)
+	    {}
+	    std::string name;
+	    testicle::AssertionError error;
+	};
+
 	std::ostream& os_;
 	const bool verbose_;
         const int indent_;
 	int pass_;
 	int fail_;
 	int error_;
+	std::string current_;
+	std::vector<Problem> problems_;
     };
 
     void Progress::begin(const char * name)
     {
+	current_ = name;
 	if(verbose_) {
            os_ << name
                << std::string(indent_ - std::strlen(name), ' ')
@@ -55,7 +69,7 @@ namespace {
 	}
     }
 
-    void Progress::fail()
+    void Progress::fail(const testicle::AssertionError& error)
     {
 	fail_++;
 	if(verbose_) {
@@ -64,6 +78,8 @@ namespace {
 	else {
 	    os_ << 'F' << std::flush;
 	}
+
+	problems_.push_back(Problem(current_, error));
     }
 
     void Progress::error()
@@ -79,10 +95,22 @@ namespace {
 
     void Progress::done()
     {
+	static const char hr[] = "----------------------------------------"
+	                         "------------------------------\n";
+
 	if(!verbose_) {
 	    os_ << '\n';
 	}
-	os_ << "----------------------------------------------------------------------\n";
+	os_ << hr;
+
+	for(std::vector<Problem>::const_iterator i = problems_.begin();
+	    i != problems_.end();
+	    ++i) {
+	    os_ << i->name << '\n'
+		<< i->error << '\n'
+		<< hr;
+	}
+
 	if(fail_+error_ == 0) {
 	    os_ << "OK (" << pass_ << " tests)\n";
 	}
@@ -93,7 +121,6 @@ namespace {
 		<< error_ <<" ERROR)\n";
 	}
     }
-
 
     struct Entry {
 	char * name;
@@ -243,7 +270,7 @@ int main(int argc, char ** argv)
 		p.pass();
 	    }
 	    catch(testicle::AssertionError& err) {
-		p.fail();
+		p.fail(err);
 	    }
 	    catch(...) {
 		p.error();
