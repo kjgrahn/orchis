@@ -1,5 +1,12 @@
+Release history of testicle.
+_________________________________________
+
+- Fixed warnings related to constness of string literals, when using
+  g++ 4.2 and lots of warnings enabled.
+
 testicle 1.0 (2007-07-02):
-  - First release, for my personal use.
+
+- First release, for my personal use.
 
 _________________________________________
 $Id$

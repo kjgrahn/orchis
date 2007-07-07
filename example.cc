@@ -123,7 +123,7 @@ namespace {
     }
 
     struct Entry {
-	char * name;
+	const char * name;
 	void (*f)();
     };
 

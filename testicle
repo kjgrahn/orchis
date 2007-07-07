@@ -193,7 +193,7 @@ def source(testnames, f):
     }
 
     struct Entry {
-	char * name;
+	const char * name;
 	void (*f)();
     };
 
