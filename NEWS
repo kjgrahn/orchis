@@ -1,6 +1,8 @@
 Release history of testicle.
 _________________________________________
 
+testicle 1.1 (2007-07-07):
+
 - Fixed warnings related to constness of string literals, when using
   g++ 4.2 and lots of warnings enabled.
 
