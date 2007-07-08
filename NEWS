@@ -1,6 +1,10 @@
 Release history of testicle.
 _________________________________________
 
+- AssertionError was a stupid name for the exception involved in
+  causing a test to FAIL. It's now called "Failure" instead, but the
+  old name is retained as a typedef for a while.
+
 testicle 1.1 (2007-07-07):
 
 - Fixed warnings related to constness of string literals, when using

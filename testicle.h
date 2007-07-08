@@ -8,22 +8,25 @@
 
 namespace testicle {
 
-    struct AssertionError {
-	AssertionError()
+    struct Failure {
+	Failure()
 	    : what("false")
 	{}
-	explicit AssertionError(const std::string& message)
+	explicit Failure(const std::string& message)
 	    : what(message)
 	{}
-	explicit AssertionError(const std::ostringstream& message)
+	explicit Failure(const std::ostringstream& message)
 	    : what(message.str())
 	{}
 
 	std::string what;
     };
 
+    /* compat name; obsolete */
+    typedef Failure AssertionError;
+
     inline
-    std::ostream& operator<< (std::ostream& os, const AssertionError& e) {
+    std::ostream& operator<< (std::ostream& os, const Failure& e) {
 	return os << e.what;
     }
 
@@ -49,7 +52,7 @@ namespace testicle {
 	if(val) return;
 	std::ostringstream ss;
 	ss << val;
-	throw AssertionError(ss);
+	throw Failure(ss);
     }
 
     template<class M, class N>
@@ -57,7 +60,7 @@ namespace testicle {
 	if(m == n) return;
 	std::ostringstream ss;
 	ss << m << " == " << n;
-	throw AssertionError(ss);
+	throw Failure(ss);
     }
 
     template<class M, class N>
@@ -65,7 +68,7 @@ namespace testicle {
 	if(m != n) return;
 	std::ostringstream ss;
 	ss << m << " != " << n;
-	throw AssertionError(ss);
+	throw Failure(ss);
     }
 
     template<class M, class N>
@@ -73,7 +76,7 @@ namespace testicle {
 	if(m < n) return;
 	std::ostringstream ss;
 	ss << m << " < " << n;
-	throw AssertionError(ss);
+	throw Failure(ss);
     }
 
     template<class M, class N>
@@ -81,7 +84,7 @@ namespace testicle {
 	if(m > n) return;
 	std::ostringstream ss;
 	ss << m << " > " << n;
-	throw AssertionError(ss);
+	throw Failure(ss);
     }
 
     template<class T, class Iter>
@@ -90,7 +93,7 @@ namespace testicle {
 	std::ostringstream ss;
 	ss << t << " in ";
 	put_seq(ss, first, last);
-	throw AssertionError(ss);
+	throw Failure(ss);
     }
 
     template<class T, class C>
@@ -106,7 +109,7 @@ namespace testicle {
 	std::ostringstream ss;
 	ss << t << " not in ";
 	put_seq(ss, first, last);
-	throw AssertionError(ss);
+	throw Failure(ss);
     }
 
     template<class T, class C>

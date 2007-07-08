@@ -1,5 +1,5 @@
 .\" $Id$
-.TH testicle 1 "JUN 2007" "Testicle" "User Manuals"
+.TH testicle 1 "JUL 2007" "Testicle" "User Manuals"
 .
 .
 .SH "NAME"
@@ -51,7 +51,7 @@ Executing a test results in one out of three things:
 the function returns normally
 .IP \fB\s-2FAIL\s0
 the function throws a
-.B testicle::AssertionError
+.B testicle::Failure
 exception. Utility functions for throwing these
 are available in
 .BR testicle.h .
@@ -65,7 +65,7 @@ or some similar function.
 .
 .SS "Assertions"
 A test function may raise
-.B testicle::AssertionError
+.B testicle::Failure
 explicitly, with or without a string detailing the failure.
 .PP
 For convenience, 
@@ -184,7 +184,7 @@ The primary aim of
 .B testicle
 is to make it easy for lazy users to add a test:
 easy to understand how to do it,
-no header file to keep in sync,
+with no header file to keep in sync,
 and no need to somehow register each test
 (with the risk of forgetting to do it, and believing the
 test passes when in fact it never gets executed).
@@ -198,6 +198,13 @@ and that if they do, you want a debuggable core dump anyway (the
 .B \-c
 option).
 .PP
+It might have been a mistake to include
+.B \s-2ERROR\s0
+as an outcome from a test. It was modeled on
+.IR PyUnit ,
+but the things this covers in Python
+tend to map to quick and painless crashes in C++.
+.PP
 Some might find
 .B testicle
 an unfortunate name.
@@ -206,7 +213,7 @@ the unpalpable meeting of
 \[lq]test\[rq] and
 \[lq]popsicle\[rq].
 And besides,
-.B CPPUNIT
+.I CPPUNIT
 is a pretty unfortunate name, too ...
 .PP
 Finally:
