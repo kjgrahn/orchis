@@ -100,6 +100,20 @@ assert_gt(3.14159, 3);
 There is nothing magical about these utility assertions.
 You may of course provide your own,
 perhaps more suited to the problem domain.
+If you do, please retain the following convention:
+.IP
+When an assertion fails, the text that is printed
+is the condition which
+.I didn't
+hold, for example
+.IR "2 < 1".
+Inverting the meaning to say
+.IR "2 >= 1"
+would be misleading in the general case; there is no guaranteed
+correlation between
+.I operator<\~()
+and
+.IR operator>=\~() .
 .
 .
 .SS "The test program"
