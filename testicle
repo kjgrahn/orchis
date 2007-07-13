@@ -187,8 +187,8 @@ def source(testnames, f):
 	else {
 	    int total = pass_ + fail_ + error_;
 	    os_ << "FAILED (" << total << " tests; "
-		<< fail_ << " FAIL, "
-		<< error_ <<" ERROR)\n";
+		<< fail_ << " fail, "
+		<< error_ <<" error)\n";
 	}
     }
 
