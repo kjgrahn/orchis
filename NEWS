@@ -1,6 +1,13 @@
 Release history of testicle.
 _________________________________________
 
+testicle 1.3 (2007-11-12):
+
+- testicle::Failure: an additional templated constructor, in order to
+  make it easier to create useful error messages. Also slightly
+  improved error messages in general: "Failure: 1 > 2" rather than
+  "1 > 2".
+
 testicle 1.2 (2007-07-08):
 
 - AssertionError was a stupid name for the exception involved in

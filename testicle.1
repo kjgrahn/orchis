@@ -67,6 +67,14 @@ or some similar function.
 A test function may raise
 .B testicle::Failure
 explicitly, with or without a string detailing the failure.
+You may pass any other object, as long as it can be placed
+on an ostream.
+.IP
+.nf
+testicle::\fBFailure\fP(const std::string& \fImessage\fP);
+testicle::\fBFailure\fP(const std::ostringstream& \fImessage\fP);
+template<class T> testicle::\fBFailure\fP(const T& \fImessage\fP);
+.fi
 .PP
 For convenience, 
 .B testicle.h

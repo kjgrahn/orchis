@@ -10,7 +10,7 @@ namespace testicle {
 
     struct Failure {
 	Failure()
-	    : what("false")
+	    : what("true")
 	{}
 	explicit Failure(const std::string& message)
 	    : what(message)
@@ -18,6 +18,13 @@ namespace testicle {
 	explicit Failure(const std::ostringstream& message)
 	    : what(message.str())
 	{}
+	template<class T>
+	explicit Failure(const T& message)
+	{
+	    std::ostringstream oss;
+	    oss << message;
+	    what = oss.str();
+	}
 
 	std::string what;
     };
@@ -27,7 +34,7 @@ namespace testicle {
 
     inline
     std::ostream& operator<< (std::ostream& os, const Failure& e) {
-	return os << e.what;
+	return os << "Failure: " << e.what;
     }
 
     template<class Iter>
