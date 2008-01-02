@@ -1,5 +1,7 @@
 .\" $Id$
-.TH testicle 1 "JUL 2007" "Testicle" "User Manuals"
+.ss 12 12
+.
+.TH testicle 1 "DEC 2007" "Testicle" "User Manuals"
 .
 .
 .SH "NAME"
@@ -54,7 +56,10 @@ the function throws a
 .B testicle::Failure
 exception. Utility functions for throwing these
 are available in
-.BR testicle.h .
+.B testicle.h
+(see
+.I Assertions
+below).
 .IP \fB\s-2ERROR\s0
 the function throws any other exception.
 .PP
@@ -101,7 +106,8 @@ and so on)
 are defined for the types involved,
 and they can be placed on a
 .BR std::ostream .
-Note that types may be mixed. For example, this test passes:
+Note that types may be mixed. For example, this test passes
+because 3.14159\~>\~3:
 .IP
 assert_gt(3.14159, 3);
 .PP
@@ -114,9 +120,9 @@ When an assertion fails, the text that is printed
 is the condition which
 .I didn't
 hold, for example
-.IR "2 < 1".
+.IR "2\~<\~1".
 Inverting the meaning to say
-.IR "2 >= 1"
+.IR "2\~>=\~1"
 would be misleading in the general case; there is no guaranteed
 correlation between
 .I operator<\~()
@@ -208,7 +214,7 @@ option).
 .PP
 It might have been a mistake to include
 .B \s-2ERROR\s0
-as an outcome from a test. It was modeled on
+as an outcome from a test. This was modeled on
 .IR PyUnit ,
 but the things this covers in Python
 tend to map to quick and painless crashes in C++.
@@ -233,7 +239,7 @@ depending on your point of view.
 .
 .SH "AUTHOR"
 J\(:orgen Grahn
-.I \[fo]grahn+src@snipabacken.dyndns.org\[fc]
+.I \[fo]grahn+src@snipabacken.se\[fc]
 .PP
 This software is released under the
 .IR "Modified BSD License" .
