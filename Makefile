@@ -2,7 +2,7 @@
 #
 # Makefile
 #
-# Copyright (c) 2007 Jörgen Grahn.
+# Copyright (c) 2007, 2008 Jörgen Grahn.
 # All rights reserved.
 
 SHELL = /bin/sh

@@ -349,8 +349,8 @@ if __name__ == "__main__":
                 testres.append(re.compile(value))
             elif opt=='--version':
                 print prog
-                print "$Id$"
-                print "Copyright (c) 2007 Jörgen Grahn."
+                print "$Name$"
+                print "Copyright (c) 2007, 2008 Jörgen Grahn."
                 print "All rights reserved."
                 sys.exit(0)
             elif opt=='--help':
