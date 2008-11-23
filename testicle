@@ -92,7 +92,7 @@ def source(testnames, f):
 
 	void begin(const char * name);
 	void pass();
-	void fail(const testicle::Failure& error);
+	void fail(const testicle::Failure& failure);
 	void error();
 	void done();
 	int rc() const { return fail_+error_!=0; }
@@ -100,9 +100,9 @@ def source(testnames, f):
     private:
 	struct Problem {
 	    Problem(const std::string& nam,
-		    const testicle::Failure& err)
+		    const testicle::Failure& failur)
 		: name(nam),
-		  error(err)
+		  failure(failur)
 	    {}
 	    std::string name;
 	    testicle::Failure error;
@@ -139,7 +139,7 @@ def source(testnames, f):
 	}
     }
 
-    void Progress::fail(const testicle::Failure& error)
+    void Progress::fail(const testicle::Failure& failure)
     {
 	fail_++;
 	if(verbose_) {
@@ -149,7 +149,7 @@ def source(testnames, f):
 	    os_ << 'F' << std::flush;
 	}
 
-	problems_.push_back(Problem(current_, error));
+	problems_.push_back(Problem(current_, failure));
     }
 
     void Progress::error()
@@ -177,7 +177,7 @@ def source(testnames, f):
 	    i != problems_.end();
 	    ++i) {
 	    os_ << i->name << '\n'
-		<< i->error << '\n'
+		<< i->failure << '\n'
 		<< hr;
 	}
 
@@ -302,8 +302,8 @@ int main(int argc, char ** argv)
 		e.f();
 		p.pass();
 	    }
-	    catch(testicle::Failure& err) {
-		p.fail(err);
+	    catch(testicle::Failure& failure) {
+		p.fail(failure);
 	    }
 	    catch(...) {
 		p.error();
