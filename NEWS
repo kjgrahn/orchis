@@ -1,6 +1,13 @@
 Release history of testicle.
 _________________________________________
 
+testicle 1.4 (2008-11-23):
+
+- When a test has the outcome ERROR (uncaught and unexpected
+  exception), include it in the listing at the end, after the normal
+  failures.  Before, you either had to guess which test it was, or use
+  the -v option.
+
 testicle 1.3 (2007-11-12):
 
 - testicle::Failure: an additional templated constructor, in order to
