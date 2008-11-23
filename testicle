@@ -105,7 +105,7 @@ def source(testnames, f):
 		  failure(failur)
 	    {}
 	    std::string name;
-	    testicle::Failure error;
+	    testicle::Failure failure;
 	};
 
 	std::ostream& os_;
