@@ -3,7 +3,7 @@
 #
 # $Id$
 #
-# Copyright (c) 2007 Jörgen Grahn.
+# Copyright (c) 2007, 2008 Jörgen Grahn.
 # All rights reserved.
 #
 """build C++ unit tests
@@ -116,6 +116,7 @@ def source(testnames, f):
 	int error_;
 	std::string current_;
 	std::vector<Problem> problems_;
+	std::vector<std::string> errors_;
     };
 
     void Progress::begin(const char * name)
@@ -161,6 +162,8 @@ def source(testnames, f):
 	else {
 	    os_ << 'E' << std::flush;
 	}
+
+	errors_.push_back(current_);
     }
 
     void Progress::done()
@@ -178,6 +181,14 @@ def source(testnames, f):
 	    ++i) {
 	    os_ << i->name << '\n'
 		<< i->failure << '\n'
+		<< hr;
+	}
+
+	for(std::vector<std::string>::const_iterator i = errors_.begin();
+	    i != errors_.end();
+	    ++i) {
+	    os_ << *i << '\n'
+		<< "Error." << '\n'
 		<< hr;
 	}
 
