@@ -1,7 +1,7 @@
 .\" $Id$
 .ss 12 12
 .
-.TH testicle 1 "DEC 2007" "Testicle" "User Manuals"
+.TH testicle 1 "NOV 2008" "Testicle" "User Manuals"
 .
 .
 .SH "NAME"
@@ -36,6 +36,10 @@ to find symbols likely to be tests in those object files.
 Compiling, linking and executing the tests
 is left to the user,
 through a Makefile or other means.
+.PP
+Tests are written in C++, but the target of the tests can be written in any
+language, as long as it can be linked into a C++ program.
+Specifically, this means that you can write tests for C source code.
 .
 .
 .SS "Test functions"
@@ -86,16 +90,19 @@ For convenience,
 provides a number of templated assertions:
 .IP
 .nf
-assert_(\fIval\fP)
-assert_eq(\fIval1\fP, \fIval2\fP)
-assert_neq(\fIval1\fP, \fIval2\fP)
-assert_lt(\fIval1\fP, \fIval2\fP)
-assert_gt(\fIval1\fP, \fIval2\fP)
+#include <testicle.h>
+using namespace testicle;
 
-assert_in(\fIfirst\fP, \fIlast\fP, \fIval\fP)
-assert_in(\fIcontainer\fP, \fIval\fP)
-assert_not_in(\fIfirst\fP, \fIlast\fP, \fIval\fP)
-assert_not_in(\fIcontainer\fP, \fIval\fP)
+assert_(\fIval\fP);
+assert_eq(\fIval1\fP, \fIval2\fP);
+assert_neq(\fIval1\fP, \fIval2\fP);
+assert_lt(\fIval1\fP, \fIval2\fP);
+assert_gt(\fIval1\fP, \fIval2\fP);
+
+assert_in(\fIfirst\fP, \fIlast\fP, \fIval\fP);
+assert_in(\fIcontainer\fP, \fIval\fP);
+assert_not_in(\fIfirst\fP, \fIlast\fP, \fIval\fP);
+assert_not_in(\fIcontainer\fP, \fIval\fP);
 .fi
 .PP
 These work as long as the appropriate operators
@@ -150,7 +157,7 @@ The second form simply lists tests without executing them.
 The first form executes all tests or all tests matching the given pattern(s),
 and returns with a zero exit status if all of them pass.
 By default, a brief progress indication,
-a list of failures
+a list of failures and errors,
 and a summary
 are printed to standard error. The
 .B \-v
@@ -208,9 +215,14 @@ Assertions are not macros,
 so while you may get to see the values involved in a failing test,
 you don't get the file and line number.
 This was chosen under the assumptions that tests don't normally fail,
-and that if they do, you want a debuggable core dump anyway (the
+and that if they do, you want a debuggable core dump anyway \- the
 .B \-c
-option).
+option.
+.IP
+(I'm also assuming that stack unwinding caused by the exception doesn't
+destroy the state you want to debug: the place where the exception was thrown.
+It seems to work well with gcc, and I suppose self-preservation makes most
+compiler vendors enable post mortem inspection of unexpected exceptions.)
 .PP
 It might have been a mistake to include
 .B \s-2ERROR\s0
@@ -223,7 +235,7 @@ Some might find
 .B testicle
 an unfortunate name.
 I'm sorry, but it was too funny to ignore:
-the unpalpable meeting of
+the unpalatable meeting of
 \[lq]test\[rq] and
 \[lq]popsicle\[rq].
 And besides,
