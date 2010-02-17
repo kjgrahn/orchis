@@ -1,7 +1,7 @@
 .\" $Id$
-.ss 12 12
+.ss 12 0
 .
-.TH testicle 1 "NOV 2008" "Testicle" "User Manuals"
+.TH testicle 1 "FEB 2010" "Testicle" "User Manuals"
 .
 .
 .SH "NAME"
@@ -89,17 +89,18 @@ For convenience,
 .B testicle.h
 provides a number of templated assertions:
 .IP
+.ft CR
 .nf
 #include <testicle.h>
 using namespace testicle;
 
 assert_(\fIval\fP);
-assert_eq(\fIval1\fP, \fIval2\fP);
-assert_neq(\fIval1\fP, \fIval2\fP);
-assert_lt(\fIval1\fP, \fIval2\fP);
-assert_gt(\fIval1\fP, \fIval2\fP);
+assert_eq(\fIa\fP, \fIb\fP);    // a==b
+assert_neq(\fIa\fP, \fIb\fP);   // a!=b
+assert_lt(\fIa\fP, \fIb\fP);    // a<b
+assert_gt(\fIa\fP, \fIb\fP);    // a>b
 
-assert_in(\fIfirst\fP, \fIlast\fP, \fIval\fP);
+assert_in(\fIfirst\fP, \fIlast\fP, \fIval\fP);  fuck
 assert_in(\fIcontainer\fP, \fIval\fP);
 assert_not_in(\fIfirst\fP, \fIlast\fP, \fIval\fP);
 assert_not_in(\fIcontainer\fP, \fIval\fP);
