@@ -94,6 +94,22 @@ namespace testicle {
 	throw Failure(ss);
     }
 
+    template<class M, class N>
+    void assert_le(const M& m, const N& n) {
+	if(m <= n) return;
+	std::ostringstream ss;
+	ss << m << " <= " << n;
+	throw Failure(ss);
+    }
+
+    template<class M, class N>
+    void assert_ge(const M& m, const N& n) {
+	if(m >= n) return;
+	std::ostringstream ss;
+	ss << m << " >= " << n;
+	throw Failure(ss);
+    }
+
     template<class T, class Iter>
     void assert_in(Iter first, Iter last, const T& t) {
 	if(std::find(first, last, t) != last) return;
