@@ -1,6 +1,11 @@
 Release history of testicle.
 _________________________________________
 
+testicle 1.5 (2010-07-16):
+
+- Two more assertions (le and ge), and some documentation
+  improvements.
+
 testicle 1.4 (2008-11-23):
 
 - When a test has the outcome ERROR (uncaught and unexpected
