@@ -3,22 +3,13 @@
 #
 # $Id$
 #
-# Copyright (c) 2007, 2008 Jörgen Grahn.
+# Copyright (c) 2007, 2008, 2011 Jörgen Grahn.
 # All rights reserved.
 #
 """build C++ unit tests
 """
 import os
 import re
-
-
-def make(infiles):
-    """Make the files 'infiles' by invoking make(1), returning success.
-    Unused; it was a bad idea.
-    """
-    f = os.popen('make %s' % ' '.join(['"%s"' % s for s in infiles]))
-    sys.stdout.write(f.read())
-    return not f.close()
 
 
 def find_tests(infiles, testres):
@@ -350,7 +341,7 @@ if __name__ == "__main__":
             elif opt=='--version':
                 print prog
                 print "$Name$"
-                print "Copyright (c) 2007, 2008 Jörgen Grahn."
+                print "Copyright (c) 2007, 2008, 2011 Jörgen Grahn."
                 print "All rights reserved."
                 sys.exit(0)
             elif opt=='--help':

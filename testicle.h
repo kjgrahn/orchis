@@ -1,4 +1,9 @@
-/* -*- c++ -*- */
+/* -*- c++ -*-
+ * $Id$
+ *
+ * Copyright (c) 2011 Jörgen Grahn
+ * All rights reserved.
+ */
 #ifndef TESTICLE_H
 #define TESTICLE_H
 
@@ -28,9 +33,6 @@ namespace testicle {
 
 	std::string what;
     };
-
-    /* compat name; obsolete */
-    typedef Failure AssertionError;
 
     inline
     std::ostream& operator<< (std::ostream& os, const Failure& e) {

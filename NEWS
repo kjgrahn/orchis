@@ -1,6 +1,10 @@
 Release history of testicle.
 _________________________________________
 
+testicle 1.6 (2011-10-16):
+
+- Some internal cleanup. Finally removed testicle::AssertionError.
+
 testicle 1.5 (2010-07-16):
 
 - Two more assertions (le and ge), and some documentation
