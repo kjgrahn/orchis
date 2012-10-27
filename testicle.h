@@ -1,7 +1,11 @@
 /* -*- c++ -*-
- * $Id$
  *
- * Copyright (c) 2011 Jörgen Grahn
+ * testicle - build C++ unit tests
+ *
+ * The testicle::Failure exception, and assertions. See
+ * testicle(1) for documentation.
+ *
+ * Copyright (c) 2011, 2012 Jörgen Grahn
  * All rights reserved.
  */
 #ifndef TESTICLE_H
