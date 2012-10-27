@@ -1,7 +1,7 @@
 .\" $Id$
 .ss 12 0
 .
-.TH testicle 1 "OCT 2011" "Testicle" "User Manuals"
+.TH testicle 1 "OCT 2012" "Testicle" "User Manuals"
 .
 .
 .SH "NAME"
@@ -157,22 +157,21 @@ has the synopsis
 .RI [ pattern
 \&...]
 .PP
-The second form simply lists tests without executing them.
-.PP
-The first form executes all tests or all tests matching the given pattern(s),
+If you don't provide any options, the program
+executes all tests or all tests matching the given pattern(s),
 and returns with a zero exit status if all of them pass.
+.IP \fB\-v
 By default, a brief progress indication,
 a list of failures and errors,
 and a summary
-are printed to standard error. The
-.B \-v
-option makes the progress more verbose.
-.PP
-The
-.B \-c
-option runs the tests without catching exceptions,
+are printed to standard error.
+This option also prints test names as they are executed.
+.IP \fB\-c
+Run the tests without catching exceptions,
 so that a failure or error causes the program to crash and generate a core dump
 (or whatever your environment provides for post mortem debugging).
+.IP \fB\-l
+List the tests without executing them.
 .
 .
 .SH "OPTIONS"
