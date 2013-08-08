@@ -322,7 +322,7 @@ if __name__ == "__main__":
     import getopt
 
     prog = os.path.split(sys.argv[0])[1]
-    usage = ('usage: %(prog)s [-o outfile] [--tests=pattern] infile ...\n'
+    usage = ('usage: %(prog)s [-o outfile] [--tests=pattern] ... infile ...\n'
              '       %(prog)s --help\n'
              '       %(prog)s --version') % locals()
     outfile = 'test.cc'

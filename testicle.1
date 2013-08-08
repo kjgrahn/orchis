@@ -12,6 +12,7 @@ testicle \- build C++ unit tests
 .RB [ \-o
 .IR outfile ]
 .RB [ --tests = \fIpattern ]
+\&...
 .I infile
 \&...
 .br
@@ -210,6 +211,8 @@ Assume symbols matching the Perl-compatible regular expression
 are tests, instead of any function, in any namespace,
 whose name starts with
 .BR test .
+This option can be repeated to make it easier to say
+\[lq]this pattern or that pattern\[rq].
 .
 .
 .IP \fB--help
