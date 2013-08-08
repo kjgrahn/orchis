@@ -1,7 +1,6 @@
-.\" $Id$
 .ss 12 0
 .
-.TH testicle 1 "OCT 2012" "Testicle" "User Manuals"
+.TH testicle 1 "AUG 2013" "Testicle" "User Manuals"
 .
 .
 .SH "NAME"
@@ -31,7 +30,7 @@ containing test functions (referred to here as
 and generates C++ source for driving those tests.
 .PP
 It works by invoking
-.B nm
+.BR nm (1)
 to find symbols likely to be tests in those object files.
 Compiling, linking and executing the tests
 is left to the user,
@@ -54,9 +53,9 @@ In fact, there is no direct support for doing so.
 .PP
 Executing a test results in one out of three things:
 .IP \fB\s-2PASS\s0
-the function returns normally
+The function returns normally.
 .IP \fB\s-2FAIL\s0
-the function throws a
+The function throws a
 .B testicle::Failure
 exception. Utility functions for throwing these
 are available in
@@ -65,7 +64,7 @@ are available in
 .I Assertions
 below).
 .IP \fB\s-2ERROR\s0
-the function throws any other exception.
+The function throws any other exception.
 .PP
 Of course, the test may also crash, run forever, or call
 .BR std::exit ()
@@ -80,6 +79,7 @@ explicitly, with or without a string detailing the failure.
 You may pass any other object, as long as it can be placed
 on an ostream.
 .IP
+.if t .ft I
 .nf
 testicle::\fBFailure\fP(const std::string& \fImessage\fP);
 testicle::\fBFailure\fP(const std::ostringstream& \fImessage\fP);
@@ -90,18 +90,18 @@ For convenience,
 .B testicle.h
 provides a number of templated assertions:
 .IP
-.ft CR
+.if t .ft I
 .nf
 #include <testicle.h>
 using namespace testicle;
 
 assert_(\fIval\fP);
-assert_eq(\fIa\fP, \fIb\fP);    // a==b
-assert_neq(\fIa\fP, \fIb\fP);   // a!=b
-assert_lt(\fIa\fP, \fIb\fP);    // a<b
-assert_gt(\fIa\fP, \fIb\fP);    // a>b
-assert_le(\fIa\fP, \fIb\fP);    // a<=b
-assert_ge(\fIa\fP, \fIb\fP);    // a>=b
+assert_eq(\fIa\fP, \fIb\fP);	// a==b
+assert_neq(\fIa\fP, \fIb\fP);	// a!=b
+assert_lt(\fIa\fP, \fIb\fP);	// a<b
+assert_gt(\fIa\fP, \fIb\fP);	// a>b
+assert_le(\fIa\fP, \fIb\fP);	// a<=b
+assert_ge(\fIa\fP, \fIb\fP);	// a>=b
 
 assert_in(\fIfirst\fP, \fIlast\fP, \fIval\fP);  // std::find(first, last, val)!=last
 assert_in(\fIcontainer\fP, \fIval\fP);
@@ -125,7 +125,7 @@ assert_gt(3.14159, 3);
 There is nothing magical about these utility assertions.
 You may of course provide your own,
 perhaps more suited to the problem domain.
-If you do, please retain the following convention:
+If you do, please retain the convention:
 .IP
 When an assertion fails, the text that is printed
 is the condition which
@@ -174,16 +174,37 @@ so that a failure or error causes the program to crash and generate a core dump
 List the tests without executing them.
 .
 .
+.SS "The Makefile"
+A Makefile
+is a reasonable way of driving unit tests.
+The interesting portions might look like this:
+.IP
+.if t .ft I
+.nf
+\&.PHONY: check checkv
+check: tests
+	./tests
+checkv: tests
+	valgrind -q ./tests -v
+
+test.cc: libtest.a
+	testicle -o$@ $^
+
+tests: test.o libfoo.a libtest.a
+	$(CXX) $(CXXFLAGS) -o $@ test.o -L. -ltest -lfoo
+.fi
+.
+.
 .SH "OPTIONS"
 .
 .
-.IP \-o\ \fIoutfile
+.IP \fB\-o\ \fIoutfile
 Name the C++ source test driver.
 If not provided, it will be named, simply,
 .BR test.cc .
 .
 .
-.IP --tests=\fIpattern
+.IP \fB--tests=\fIpattern
 Assume symbols matching the Perl-compatible regular expression
 .I pattern
 are tests, instead of any function, in any namespace,
@@ -191,11 +212,11 @@ whose name starts with
 .BR test .
 .
 .
-.IP --help
+.IP \fB--help
 Print the usage message and exit.
 .
 .
-.IP --version
+.IP \fB--version
 Print version information and exit.
 .
 .
@@ -204,7 +225,7 @@ Print version information and exit.
 if the test program is generated correctly.
 .
 .
-.SH "NOTES/BUGS"
+.SH "NOTES"
 The primary aim of
 .B testicle
 is to make it easy for lazy users to add a test:
@@ -215,10 +236,9 @@ and no need to somehow register each test
 test passes when in fact it never gets executed).
 .PP
 The primary weakness is, I suppose, in diagnostics.
-Assertions are not macros,
-so while you may get to see the values involved in a failing test,
-you don't get the file and line number.
-This was chosen under the assumptions that tests don't normally fail,
+You may get to see the values involved in a failing test,
+but you don't get the file and line number.
+This design was chosen under the assumptions that tests don't normally fail,
 and that if they do, you want a debuggable core dump anyway \- the
 .B \-c
 option.
@@ -234,17 +254,17 @@ It might have been a mistake to include
 as an outcome from a test. This was modeled on
 .IR PyUnit ,
 but the things this covers in Python
-tend to map to quick and painless crashes in C++.
+tend to map to quick and painless crashes
+\- or compile-time errors \- in C++.
 .PP
 Some might find
 .B testicle
-an unfortunate name.
-I'm sorry, but it was too funny to ignore:
+an unfortunate name:
 the unpalatable meeting of
 \[lq]test\[rq] and
 \[lq]popsicle\[rq].
-And besides,
-.I CPPUNIT
+Well,
+.I \s-2CPPUNIT\s0
 is a pretty unfortunate name, too ...
 .PP
 Finally:
