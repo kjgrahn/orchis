@@ -5,7 +5,7 @@
  * The testicle::Failure exception, and assertions. See
  * testicle(1) for documentation.
  *
- * Copyright (c) 2011, 2012 Jörgen Grahn
+ * Copyright (c) 2011, 2012, 2013 Jörgen Grahn
  * All rights reserved.
  */
 #ifndef TESTICLE_H
@@ -16,6 +16,9 @@
 #include <sstream>
 
 namespace testicle {
+
+    /* marker; void foo(TC) is a test case */
+    struct TC {};
 
     struct Failure {
 	Failure()

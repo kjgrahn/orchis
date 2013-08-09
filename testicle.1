@@ -44,13 +44,21 @@ Specifically, this means that you can write tests for C source code.
 .
 .SS "Test functions"
 .
-Test functions must have the signature
+Test functions must have one of the signatures
 .IP
+\fIvoid ...(testicle::TC);\fP
+.br
 \fIvoid test...();\fP
 .PP
-and may be inside the global or any other namespace.
-There is no requirement to group the tests into classes.
-In fact, there is no direct support for doing so.
+i.e. either be a function taking a single dummy
+.I testicle::TC
+argument,
+or take no arguments but have a name starting with
+.IR test .
+.PP
+Tests may be inside the global or any other named namespace.
+Arranging tests into a nested hierarchy of namespaces
+is the best way of grouping tests.
 .PP
 Executing a test results in one out of three things:
 .IP \fB\s-2PASS\s0
@@ -213,6 +221,11 @@ whose name starts with
 .BR test .
 This option can be repeated to make it easier to say
 \[lq]this pattern or that pattern\[rq].
+.
+.IP
+Test functions which take a
+.I testicle::TC
+argument are always included.
 .
 .
 .IP \fB--help

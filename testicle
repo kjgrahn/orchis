@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: iso-8859-1 -*-
 #
-# Copyright (c) 2007, 2008, 2011 Jörgen Grahn.
+# Copyright (c) 2007, 2008, 2011, 2013 Jörgen Grahn.
 # All rights reserved.
 #
 """build C++ unit tests
@@ -10,23 +10,60 @@ import os
 import re
 
 
+class TestCase(object):
+    """The actual test case, as it appears in the
+    symbol table:
+    namespace :: ... function ( argument )
+    """
+    funre = re.compile(r'([\w:]+)\(([\w:]*)\)$')
+    def __init__(self, s):
+        self._nf = None
+        m = self.funre.match(s)
+        if m:
+            self._nf = m.group(1)
+            arg  = m.group(2)
+            self._legacy = arg in ('void', '')
+            if arg != 'testicle::TC' and not self._legacy:
+                self._nf = None
+
+    def valid(self, res):
+        """True iff this symbol actually is a test case. For some
+        cases one if the REs have to match.
+        """
+        if not self._nf: return False
+        if not self._legacy: return True
+        for r in res:
+            if r.match(self._nf): return True
+        return False
+
+    def legacy(self):
+        "Is the legacy form, with no testicle::TC argument."
+        return self._legacy
+
+    def name(self):
+        "The TC name: namespace and function name, but no arguments."
+        return self._nf
+
+    def nf(self):
+        "Returns a tuple (namespace list, function)."
+        nn = self._nf.split('::')
+        return nn[:-1], nn[-1]
+
+
 def find_tests(infiles, testres):
-    """Find and return all symbols
-    matching any of the REs 'testres'
+    """Find and return all symbols foo(args) matching
+    - something(testicle::TC)
+    - any of the REs 'testres'
     in object files 'infiles'.
     """
-    funre = re.compile(r'^([\w:]+)\((?:void)?\)\sT\s')
     f = os.popen('nm -CP %s' % ' '.join(['"%s"' % s for s in infiles]))
     tests = []
     for s in f.xreadlines():
-        m = funre.match(s)
-        if not m:
-            continue
-        fn = m.group(1)
-        for rex in testres:
-            if rex.match(fn):
-                tests.append(fn)
-                break
+        ss = s.split()
+        if len(ss)>1 and ss[1]=='T':
+            tc = TestCase(ss[0])
+            if tc.valid(testres):
+                tests.append(tc)
     rc = f.close()
     return tests
 
@@ -36,15 +73,20 @@ def prototypes(testnames, f):
     """
     w = f.write
     for name in testnames:
-        n = name.split('::')
-        nss, f = n[:-1], n[-1]
+        nss, f = name.nf()
         indent = 0
         for ns in nss:
             w(' ' * indent)
             w('namespace %s {\n' % ns)
             indent += 2
-        w(' ' * indent)
-        w('void %s();\n' % f)
+        if name.legacy():
+            w(' ' * indent)
+            w('void %s();\n' % f)
+            w(' ' * indent)
+            w('static inline void %s(testicle::TC) { %s(); }\n'% (f, f))
+        else:
+            w(' ' * indent)
+            w('void %s(testicle::TC);\n' % f)
         w('}' * len(nss))
         w('\n')
 
@@ -88,10 +130,10 @@ def source(testnames, f):
 
     private:
 	struct Problem {
-	    Problem(const std::string& nam,
-		    const testicle::Failure& failur)
-		: name(nam),
-		  failure(failur)
+	    Problem(const std::string& name,
+		    const testicle::Failure& failure)
+		: name(name),
+		  failure(failure)
 	    {}
 	    std::string name;
 	    testicle::Failure failure;
@@ -194,7 +236,7 @@ def source(testnames, f):
 
     struct Entry {
 	const char * name;
-	void (*f)();
+	void (*f)(testicle::TC);
     };
 
 
@@ -232,7 +274,7 @@ int main(int argc, char ** argv)
 """)
 
     for name in testnames:
-        w('\t{"%s", %s},\n' % (name, name))
+        w('\t{"%s", %s},\n' % (name.name(), name.name()))
 
     w(r"""    };
 
@@ -284,6 +326,7 @@ int main(int argc, char ** argv)
     }
 
     Progress p(std::cout, verbose, indentation);
+    const testicle::TC dummy;
 
     for(std::vector<Entry>::const_iterator i = chosen.begin();
 	i!=chosen.end();
@@ -294,12 +337,12 @@ int main(int argc, char ** argv)
 	p.begin(e.name);
 
 	if(bork_on_fail) {
-	    e.f();
+	    e.f(dummy);
 	    p.pass();
 	}
 	else {
 	    try {
-		e.f();
+		e.f(dummy);
 		p.pass();
 	    }
 	    catch(testicle::Failure& failure) {
@@ -339,7 +382,7 @@ if __name__ == "__main__":
             elif opt=='--version':
                 print prog
                 print "$Name$"
-                print "Copyright (c) 2007, 2008, 2011 Jörgen Grahn."
+                print "Copyright (c) 2007, 2008, 2011, 2013 Jörgen Grahn."
                 print "All rights reserved."
                 sys.exit(0)
             elif opt=='--help':
