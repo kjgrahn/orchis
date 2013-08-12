@@ -1,6 +1,17 @@
 Release history of testicle.
 _________________________________________
 
+testicle 1.7 (2013-08-12):
+
+- Test cases can now be labeled as such by marking it with a
+  testicle::TC argument.  I.e. one can be named 'area::something(TC)'
+  instead of 'area::test_something()'.  I find this more readable.
+
+- The generated test program now accepts mixed flag arguments
+  and non-flags, e.g. './test foo -v'.
+
+- Somewhat improved and clarified documentation.
+
 testicle 1.6 (2011-10-16):
 
 - Some internal cleanup. Finally removed testicle::AssertionError.
