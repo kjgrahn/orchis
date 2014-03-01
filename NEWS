@@ -1,6 +1,8 @@
 Release history of testicle.
 _________________________________________
 
+testicle 1.8 (2014-03-01):
+
 - Example unit tests included. 'make check' will build and run the
   tests in example.cc.
 
