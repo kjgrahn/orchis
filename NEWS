@@ -1,6 +1,9 @@
 Release history of testicle.
 _________________________________________
 
+- Example unit tests included. 'make check' will build and run the
+  tests in example.cc.
+
 testicle 1.7 (2013-08-12):
 
 - Test cases can now be labeled as such by marking it with a
