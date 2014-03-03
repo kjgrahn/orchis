@@ -6,6 +6,11 @@
 #include <set>
 
 
+void in_global_namespace(testicle::TC)
+{
+    testicle::assert_("ok");
+}
+
 namespace will_pass {
 
     void empty(testicle::TC)
@@ -13,6 +18,11 @@ namespace will_pass {
     }
 
     void simple(testicle::TC)
+    {
+	testicle::assert_("ok");
+    }
+
+    void test_old_naming()
     {
 	testicle::assert_("ok");
     }
