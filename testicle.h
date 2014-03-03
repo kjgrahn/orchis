@@ -1,15 +1,17 @@
 /* -*- c++ -*-
  *
- * testicle - build C++ unit tests
+ * testicle - build C++ or C unit tests
  *
  * The testicle::Failure exception, and assertions. See
  * testicle(1) for documentation.
  *
- * Copyright (c) 2011, 2012, 2013 Jörgen Grahn
+ * Copyright (c) 2011, 2012, 2013, 2014 Jörgen Grahn
  * All rights reserved.
  */
 #ifndef TESTICLE_H
 #define TESTICLE_H
+
+#ifdef __cplusplus
 
 #include <algorithm>
 #include <iostream>
@@ -151,5 +153,15 @@ namespace testicle {
 		      t);
     }
 }
+
+#else
+
+/* The primitive C interface */
+
+void testicle_escape(const char* msg);
+
+#define ASSERT(cond) do { if(!(cond)) testicle_escape(#cond); } while(0)
+
+#endif
 
 #endif

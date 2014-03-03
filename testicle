@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: iso-8859-1 -*-
 #
-# Copyright (c) 2007, 2008, 2011, 2013 Jörgen Grahn.
+# Copyright (c) 2007, 2008, 2011, 2013, 2014 Jörgen Grahn.
 # All rights reserved.
 #
 """build C++ unit tests
@@ -41,6 +41,21 @@ class Legacy(object):
         w("%sstatic void %s(testicle::TC) {\n" % (indent, self.name))
         w("%s    %s();\n" % (indent, self.name))
         w("%s}\n" % indent)
+
+class Heirloom(object):
+    "A test case written in C."
+    def __init__(self, name):
+        self.name = name
+
+    def prototype(self, f, indent):
+        f.write('%sextern "C" void %s(void);\n' % (indent, self.name))
+
+    def proxy(self, f, indent):
+        w = f.write
+        w('%svoid %s(testicle::TC) {\n' % (indent, self.name))
+        w('%s    if(setjmp(g.jmp)) throw testicle::Failure(g.msg);\n' % indent)
+        w('%s    %s();\n' % (indent, self.name))
+        w('%s}\n' % indent)
 
 class Namespace(object):
     """A C++ namespace for our purposes: a set of test functions and
@@ -125,6 +140,7 @@ def find_tests(infiles, testres):
     """
     vanillare = re.compile(r'([\w:]+)\(testicle::TC\)$')
     legacyre = re.compile(r'([\w:]+)\((?:void)?\)$')
+    heirloomre = re.compile(r'(\w+)$')
     f = os.popen('nm -CP %s' % ' '.join(['"%s"' % s for s in infiles]))
     top = Namespace()
     for s in f.xreadlines():
@@ -146,6 +162,13 @@ def find_tests(infiles, testres):
                 tc = tc.split('::')
                 ns = top.add(tc[:-1])
                 ns.append(Legacy(tc[-1]))
+            continue
+        m = heirloomre.match(tc)
+        if m:
+            tc = m.group(1)
+            if matches(testres, tc):
+                ns = top
+                ns.append(Heirloom(tc))
             continue
     rc = f.close()
     return top
@@ -294,6 +317,7 @@ def source(ns, f):
 #include <cstring>
 #include <string>
 #include <unistd.h>
+#include <setjmp.h>
 
 #include <testicle.h>
 
@@ -301,7 +325,19 @@ def source(ns, f):
 """)
 
     ns.prototypes(f)
+
     w("""
+static struct {
+    jmp_buf jmp;
+    char msg[500];
+} g;
+
+extern "C" void testicle_escape(const char* msg)
+{
+    strcpy(g.msg, msg);
+    longjmp(g.jmp, 1);
+}
+
 /* proxies for the tests */
 """)
     ns.proxies(f)

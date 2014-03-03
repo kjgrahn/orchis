@@ -4,7 +4,7 @@
 .
 .
 .SH "NAME"
-testicle \- build C++ unit tests
+testicle \- build C++ or C unit tests
 .
 .
 .SH "SYNOPSIS"
@@ -37,9 +37,16 @@ Compiling, linking and executing the tests
 is left to the user,
 through a Makefile or other means.
 .PP
-Tests are written in C++, but the target of the tests can be written in any
+Tests are normally written in C++,
+but the target of the tests can be written in any
 language, as long as it can be linked into a C++ program.
 Specifically, this means that you can write tests for C source code.
+.PP
+Tests written in C are also supported, although with reduced
+functionality. This can be useful if you're uncomfortable with even
+simple C++, or if the target is not easily callable from C++
+(perhaps header files you need to include handle things such as
+enums or void pointers in a way that's not C++ compatible).
 .
 .
 .SS "Test functions"
@@ -49,6 +56,8 @@ Test functions must have one of the signatures
 \fIvoid ...(testicle::TC);\fP
 .br
 \fIvoid test...();\fP
+.br
+\fIvoid test...(void); // C function\fP
 .PP
 i.e. either be a function taking a single dummy
 .I testicle::TC
@@ -149,6 +158,20 @@ correlation between
 .I operator<\~()
 and
 .IR operator>=\~() .
+.
+.
+.SS "Assertions in C tests"
+If your tests are written in C, the
+.B testicle::Failure
+exception is not available, and neither are the
+.BR testicle::assert_\fIfoo ()
+utilities.
+Instead you use a traditional assertion macro:
+.IP
+.if t .ft I
+.nf
+ASSERT(condition);
+.fi
 .
 .
 .SS "The test program"
@@ -272,7 +295,27 @@ as an outcome from a test. This was modeled on
 but the things this covers in Python
 tend to map to quick and painless crashes
 \- or compile-time errors \- in C++.
+.SS "C tests"
+The limited support for tests written in C was created after an
+attempt I did to test a C code base.  Header files may (especially if they
+contain a lot of inline functions) need modification to be callable from C++,
+and that may not be desireable if there is no need for C++ compatibility
+outside the unit tests.
 .PP
+Note though that writing tests in C++ is preferable:
+tests can be expressed much more clearly in a higher-level language.
+In particular, I find it very helpful to use namespaces to group tests.
+and to have access to standard containers.
+RAII is also useful; it's the only simple way to clean up after a
+test fails.
+.PP
+Perhaps the C test functionality should have been broken out into a
+separate utility, but the test driver part and the test case discovery
+part are the same.
+Also, there are certain benefits of having all your tests (C or C++)
+available in one binary.
+.
+.SS "Final notes"
 Some might find
 .B testicle
 an unfortunate name:

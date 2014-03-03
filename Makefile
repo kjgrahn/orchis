@@ -9,6 +9,7 @@ SHELL=/bin/sh
 INSTALLBASE=/usr/local
 
 CXXFLAGS=-W -Wall -pedantic -std=c++98 -g -Os
+CFLAGS=-W -Wall -pedantic -std=c99 -g -Os
 CPPFLAGS=-I.
 
 .PHONY: all
@@ -24,13 +25,18 @@ check: example
 checkv: example
 	valgrind -q ./example -v
 
-test.cc: example.o testicle
-	./testicle -o$@ example.o
+test.cc: libtests.a testicle
+	./testicle -o$@ libtests.a
 
-example: test.o example.o
-	$(CXX) $(CXXFLAGS) -o $@ test.o example.o
+example: test.o libtests.a
+	$(CXX) $(CXXFLAGS) -o $@ test.o -L. -ltests
+
+libtests.a: example.o
+libtests.a: example0.o
+	$(AR) -r $@ $^
 
 example.o: testicle.h
+example0.o: testicle.h
 
 .PHONY: install
 install: testicle testicle.h testicle.1
@@ -41,7 +47,7 @@ install: testicle testicle.h testicle.1
 .PHONY: clean
 clean:
 	$(RM) *.pyc *.pyo
-	$(RM) example test.cc *.o
+	$(RM) example test.cc *.[oa]
 
 love:
 	@echo "not war?"
