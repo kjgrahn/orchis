@@ -10,105 +10,151 @@ import os
 import re
 
 
-class TestCase(object):
-    """The actual test case, as it appears in the
-    symbol table:
-    namespace :: ... function ( argument )
-    """
-    funre = re.compile(r'([\w:]+)\(([\w:]*)\)$')
-    def __init__(self, s):
-        self._nf = None
-        m = self.funre.match(s)
-        if m:
-            self._nf = m.group(1)
-            arg  = m.group(2)
-            self._legacy = arg in ('void', '')
-            if arg != 'testicle::TC' and not self._legacy:
-                self._nf = None
+class Vanilla(object):
+    "A vanilla test case: foo(testicle::TC)."
+    def __init__(self, name):
+        self.name = name
 
-    def valid(self, res):
-        """True iff this symbol actually is a test case. For some
-        cases one if the REs have to match.
+    def prototype(self, f, indent):
+        """Generate the prototype, assuming we're in the
+        right space already.
         """
-        if not self._nf: return False
-        if not self._legacy: return True
-        for r in res:
-            if r.match(self._nf): return True
-        return False
+        f.write("%svoid %s(testicle::TC);\n" % (indent, self.name))
 
-    def legacy(self):
-        "Is the legacy form, with no testicle::TC argument."
-        return self._legacy
+    def proxy(self, f, indent):
+        """Generate the proxy, assuming we're in the
+        right space already. Vanilla test cases don't
+        need proxying.
+        """
+        pass
 
-    def name(self):
-        "The TC name: namespace and function name, but no arguments."
-        return self._nf
+class Legacy(object):
+    "A legacy test case: foo()."
+    def __init__(self, name):
+        self.name = name
 
-    def nf(self):
-        "Returns a tuple (namespace list, function)."
-        nn = self._nf.split('::')
-        return nn[:-1], nn[-1]
+    def prototype(self, f, indent):
+        f.write("%svoid %s();\n" % (indent, self.name))
 
+    def proxy(self, f, indent):
+        w = f.write
+        w("%sstatic void %s(testicle::TC) {\n" % (indent, self.name))
+        w("%s    %s();\n" % (indent, self.name))
+        w("%s}\n" % indent)
+
+class Namespace(object):
+    """A C++ namespace for our purposes: a set of test functions and
+    other namespaces.
+    """
+    def __init__(self, name = None):
+        self.name = name
+        self._ns = []
+        self._tc = []
+
+    def empty(self):
+        return not self._tc and not self._ns
+
+    def add(self, ns):
+        """Find or create the namespace 'ns' and return it.  'ns' is
+        a sequence, e.g. [] for the global namespace or ['foo', 'bar']
+        for foo::bar.
+        """
+        n = self
+        for s in ns:
+            nn = [ x for x in n._ns if x.name == s ]
+            if nn:
+                n, = nn
+            else:
+                n._ns.append(Namespace(s))
+                n = n._ns[-1]
+        return n
+
+    def append(self, tc):
+        """Append test case 'tc' to this namespace (not a
+        sub-namespace).
+        """
+        self._tc.append(tc)
+
+    def prototypes(self, f, indent = ""):
+        """Write the function prototypes to 'f'.
+        """
+        for tc in self._tc:
+            tc.prototype(f, indent)
+        w = f.write
+        for ns in self._ns:
+            w("%snamespace %s {\n" % (indent, ns.name))
+            ns.prototypes(f, indent + 4*" ")
+            w("%s}\n" % indent)
+
+    def proxies(self, f, indent = ""):
+        """Write proxies (for the tests which need them) to 'f'.
+        """
+        for tc in self._tc:
+            tc.proxy(f, indent)
+        w = f.write
+        for ns in self._ns:
+            w("%snamespace %s {\n" % (indent, ns.name))
+            ns.proxies(f, indent + 4*" ")
+            w("%s}\n" % indent)
+
+    def array(self, f, prefix = []):
+        """Write the tests as an array of tuples
+        { "name", name }.
+        """
+        for tc in self._tc:
+            ss = prefix[:]
+            ss.append(tc.name)
+            s = '::'.join(ss)
+            f.write('%8s{ "%s", %s },\n' % ('', s, s))
+        for ns in self._ns:
+            ss = prefix[:]
+            ss.append(ns.name)
+            ns.array(f, ss)
+
+def matches(res, s):
+    for re in res:
+        if re.match(s): return True
+    return False
 
 def find_tests(infiles, testres):
     """Find and return all symbols foo(args) matching
     - something(testicle::TC)
     - any of the REs 'testres'
-    in object files 'infiles'.
+    in object files 'infiles'.  Returned as a Namespace, i.e.
+    a tree with test cases sprinkled here and there.
     """
+    vanillare = re.compile(r'([\w:]+)\(testicle::TC\)$')
+    legacyre = re.compile(r'([\w:]+)\((?:void)?\)$')
     f = os.popen('nm -CP %s' % ' '.join(['"%s"' % s for s in infiles]))
-    tests = []
+    top = Namespace()
     for s in f.xreadlines():
         ss = s.split()
-        if len(ss)>1 and ss[1]=='T':
-            tc = TestCase(ss[0])
-            if tc.valid(testres):
-                tests.append(tc)
+        if len(ss)<2 or ss[1]!='T':
+            continue
+        tc = ss[0]
+        m = vanillare.match(tc)
+        if m:
+            tc = m.group(1)
+            tc = tc.split('::')
+            ns = top.add(tc[:-1])
+            ns.append(Vanilla(tc[-1]))
+            continue
+        m = legacyre.match(tc)
+        if m:
+            tc = m.group(1)
+            if matches(testres, tc):
+                tc = tc.split('::')
+                ns = top.add(tc[:-1])
+                ns.append(Legacy(tc[-1]))
+            continue
     rc = f.close()
-    return tests
+    return top
 
-def prototypes(testnames, f):
-    """Write function declarations to 'f',
-    handling namespaces correctly.
-    """
+def progress(f):
+    "Write class Progress to 'f'."
     w = f.write
-    for name in testnames:
-        nss, f = name.nf()
-        indent = 0
-        for ns in nss:
-            w(' ' * indent)
-            w('namespace %s {\n' % ns)
-            indent += 2
-        if name.legacy():
-            w(' ' * indent)
-            w('void %s();\n' % f)
-            w(' ' * indent)
-            w('static inline void %s(testicle::TC) { %s(); }\n'% (f, f))
-        else:
-            w(' ' * indent)
-            w('void %s(testicle::TC);\n' % f)
-        w('}' * len(nss))
-        w('\n')
-
-def source(testnames, f):
-    """Generate main test program source to file-like object 'w',
-    for the test functions listed in sequence 'testnames'.
-    """
-    w = f.write
-    w(r"""#include <iostream>
-#include <algorithm>
-#include <vector>
-#include <cstring>
-#include <string>
-#include <unistd.h>
-
-#include <testicle.h>
-
-""")
-
-    prototypes(testnames, f)
-
-    w(r"""namespace {
+    w(r"""
+namespace {
 
     class Progress {
     public:
@@ -233,6 +279,36 @@ def source(testnames, f):
 		<< error_ <<" error)\n";
 	}
     }
+}
+
+""")
+
+def source(ns, f):
+    """Generate main test program source to file-like object 'f',
+    for the test functions collected in Namespace 'ns'.
+    """
+    w = f.write
+    w(r"""#include <iostream>
+#include <algorithm>
+#include <vector>
+#include <cstring>
+#include <string>
+#include <unistd.h>
+
+#include <testicle.h>
+
+/* prototypes for the tests */
+""")
+
+    ns.prototypes(f)
+    w("""
+/* proxies for the tests */
+""")
+    ns.proxies(f)
+
+    progress(f)
+
+    w(r"""namespace {
 
     struct Entry {
 	const char * name;
@@ -273,8 +349,7 @@ int main(int argc, char ** argv)
     static const Entry entries[] = {
 """)
 
-    for name in testnames:
-        w('\t{"%s", %s},\n' % (name.name(), name.name()))
+    ns.array(f)
 
     w(r"""    };
 
@@ -398,10 +473,10 @@ if __name__ == "__main__":
     if not testres:
         testres.append(re.compile(r'^(.+::)?test\w*$'))
 
-    tests = find_tests(infiles, testres)
+    top = find_tests(infiles, testres)
 
     of = open(outfile, 'w')
-    source(tests, of)
+    source(top, of)
     of.close()
 
     sys.exit(0)
