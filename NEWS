@@ -1,6 +1,11 @@
 Release history of testicle.
 _________________________________________
 
+testicle 2.1 (2014-03-15):
+
+- Limited support for tests written in C, for when your interfaces
+  aren't C++-compatible.
+
 testicle 2.0 (2014-03-15):
 
 - Rewrite and cleanup of the test driver generator.
