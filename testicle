@@ -457,8 +457,7 @@ if __name__ == "__main__":
             elif opt=='--tests':
                 testres.append(re.compile(value))
             elif opt=='--version':
-                print prog
-                print "testicle 1.8"
+                print "testicle 2.0"
                 print "Copyright (c) 2007, 2008, 2011, 2013, 2014 Jörgen Grahn."
                 print "All rights reserved."
                 sys.exit(0)

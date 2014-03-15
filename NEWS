@@ -1,6 +1,13 @@
 Release history of testicle.
 _________________________________________
 
+testicle 2.0 (2014-03-15):
+
+- Rewrite and cleanup of the test driver generator.
+
+- Support the case when we discover 0 tests, instead of failing to
+  compile.
+
 testicle 1.8 (2014-03-01):
 
 - Example unit tests included. 'make check' will build and run the
@@ -56,5 +63,3 @@ testicle 1.0 (2007-07-02):
 - First release, for my personal use.
 
 _________________________________________
-$Id$
-$Name$
