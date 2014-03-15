@@ -351,9 +351,11 @@ int main(int argc, char ** argv)
 
     ns.array(f)
 
-    w(r"""    };
+    w(r"""
+        { 0, 0 },
+    };
 
-    static const size_t NENTRIES = sizeof(entries)/sizeof(entries[0]);
+    static const size_t NENTRIES = sizeof(entries)/sizeof(entries[0]) - 1;
 
     bool verbose = false;
     size_t indentation = 0;
