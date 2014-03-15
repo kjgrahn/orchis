@@ -38,7 +38,8 @@ is left to the user,
 through a Makefile or other means.
 .PP
 Tests are normally written in C++,
-but the target of the tests can be written in any
+but the target of the tests (the system under test)
+can be written in any
 language, as long as it can be linked into a C++ program.
 Specifically, this means that you can write tests for C source code.
 .PP
@@ -53,11 +54,12 @@ enums or void pointers in a way that's not C++ compatible).
 .
 Test functions must have one of the signatures
 .IP
-\fIvoid ...(testicle::TC);\fP
+.if t .ft I
+void foo(testicle::TC);
 .br
-\fIvoid test...();\fP
+void testfoo();
 .br
-\fIvoid test...(void); // C function\fP
+void testfoo(void); // C function
 .PP
 i.e. either be a function taking a single dummy
 .I testicle::TC
