@@ -403,7 +403,7 @@ int main(int argc, char ** argv)
     }
 
     Progress p(std::cout, verbose, indentation);
-    const testicle::TC dummy;
+    static const testicle::TC dummy;
 
     for(std::vector<Entry>::const_iterator i = chosen.begin();
 	i!=chosen.end();
