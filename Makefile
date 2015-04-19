@@ -1,11 +1,8 @@
-# $Id$
 #
-# Makefile
-#
-# Copyright (c) 2007, 2008 Jörgen Grahn.
+# Copyright (c) 2007, 2008, 2015 Jörgen Grahn.
 # All rights reserved.
 
-SHELL=/bin/sh
+SHELL=/bin/bash
 INSTALLBASE=/usr/local
 
 CXXFLAGS=-W -Wall -pedantic -std=c++98 -g -Os
@@ -16,8 +13,11 @@ CPPFLAGS=-I.
 all:
 
 # Note that the building of example unit tests is a bit extra
-# complicated since it cannot use a properly installed testicle.
-# See the manual for a suggested Makefile entry.
+# complicated, since it cannot assume testicle has been installed
+# properly.
+#
+# See the testicle(1) man page for how to integrate unit tests
+# into a typical Makefile.
 
 .PHONY: check checkv
 check: example
@@ -40,6 +40,7 @@ example0.o: testicle.h
 
 .PHONY: install
 install: testicle testicle.h testicle.1
+	install -d $(INSTALLBASE)/{bin,man/man1,include}
 	install -m755 testicle $(INSTALLBASE)/bin/
 	install -m644 testicle.1 $(INSTALLBASE)/man/man1/
 	install -m644 testicle.h $(INSTALLBASE)/include/
