@@ -143,7 +143,7 @@ def find_tests(infiles, testres):
     heirloomre = re.compile(r'(\w+)$')
     f = os.popen('nm -CP %s' % ' '.join(['"%s"' % s for s in infiles]))
     top = Namespace()
-    for s in f.xreadlines():
+    for s in f:
         ss = s.split()
         if len(ss)<2 or ss[1]!='T':
             continue
@@ -493,18 +493,20 @@ if __name__ == "__main__":
             elif opt=='--tests':
                 testres.append(re.compile(value))
             elif opt=='--version':
-                print "testicle 2.1"
-                print "Copyright (c) 2007, 2008, 2011, 2013, 2014 Jörgen Grahn."
-                print "All rights reserved."
+                w = sys.stdout.write
+                w("testicle 2.1\n"
+                  "Copyright (c) 2007, 2008, 2011, 2013--2015 Jörgen Grahn.\n"
+                  "All rights reserved.\n")
                 sys.exit(0)
             elif opt=='--help':
-                print usage
+                w = sys.stdout.write
+                w('%s\n' % usage)
                 sys.exit(0)
         if not infiles:
             raise ValueError('no input file specified')
-    except (getopt.GetoptError, ValueError, re.error), s:
-        print >>sys.stderr, s
-        print >>sys.stderr, usage
+    except (getopt.GetoptError, ValueError, re.error) as s:
+        w = sys.stderr.write
+        w('%s\n%s\n', s, usage)
         sys.exit(1)
 
     if not testres:
