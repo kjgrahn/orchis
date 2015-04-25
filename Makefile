@@ -40,10 +40,14 @@ example0.o: orchis.h
 
 .PHONY: install
 install: orchis orchis.h orchis.1
+install: testicle.h testicle.1
 	install -d $(INSTALLBASE)/{bin,man/man1,include}
 	install -m755 orchis $(INSTALLBASE)/bin/
 	install -m644 orchis.1 $(INSTALLBASE)/man/man1/
 	install -m644 orchis.h $(INSTALLBASE)/include/
+	ln -f $(INSTALLBASE)/bin/{orchis,testicle}
+	install -m644 testicle.1 $(INSTALLBASE)/man/man1/
+	install -m644 testicle.h $(INSTALLBASE)/include/
 
 .PHONY: clean
 clean:
