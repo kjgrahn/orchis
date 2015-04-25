@@ -1,15 +1,15 @@
 /* -*- c++ -*-
  *
- * testicle - build C++ or C unit tests
+ * orchis - build C++ or C unit tests
  *
- * The testicle::Failure exception, and assertions. See
- * testicle(1) for documentation.
+ * The orchis::Failure exception, and assertions. See
+ * orchis(1) for documentation.
  *
- * Copyright (c) 2011, 2012, 2013, 2014 Jörgen Grahn
+ * Copyright (c) 2011, 2012, 2013-2015 Jörgen Grahn
  * All rights reserved.
  */
-#ifndef TESTICLE_H
-#define TESTICLE_H
+#ifndef ORCHIS_H
+#define ORCHIS_H
 
 #ifdef __cplusplus
 
@@ -17,7 +17,7 @@
 #include <iostream>
 #include <sstream>
 
-namespace testicle {
+namespace orchis {
 
     /* marker; void foo(TC) is a test case */
     struct TC {};
@@ -158,9 +158,9 @@ namespace testicle {
 
 /* The primitive C interface */
 
-void testicle_escape(const char* msg);
+void orchis_escape(const char* msg);
 
-#define ASSERT(cond) do { if(!(cond)) testicle_escape(#cond); } while(0)
+#define ASSERT(cond) do { if(!(cond)) orchis_escape(#cond); } while(0)
 
 #endif
 

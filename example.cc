@@ -1,55 +1,55 @@
 /* Copyright (c) 2014 Jörgen Grahn.
  * All rights reserved.
  */
-#include <testicle.h>
+#include <orchis.h>
 
 #include <set>
 
 
-void in_global_namespace(testicle::TC)
+void in_global_namespace(orchis::TC)
 {
-    testicle::assert_("ok");
+    orchis::assert_("ok");
 }
 
 namespace will_pass {
 
-    void empty(testicle::TC)
+    void empty(orchis::TC)
     {
     }
 
-    void simple(testicle::TC)
+    void simple(orchis::TC)
     {
-	testicle::assert_("ok");
+	orchis::assert_("ok");
     }
 
     void test_old_naming()
     {
-	testicle::assert_("ok");
+	orchis::assert_("ok");
     }
 
-    void eq(testicle::TC)
+    void eq(orchis::TC)
     {
-	testicle::assert_eq(false, 0);
-	testicle::assert_neq(true, 0);
+	orchis::assert_eq(false, 0);
+	orchis::assert_neq(true, 0);
     }
 
-    void relational(testicle::TC)
+    void relational(orchis::TC)
     {
-	testicle::assert_lt(3, 3.141592654);
-	testicle::assert_gt(4, 3.141592654);
-	testicle::assert_le(0, 0);
-	testicle::assert_ge(0, 0);
+	orchis::assert_lt(3, 3.141592654);
+	orchis::assert_gt(4, 3.141592654);
+	orchis::assert_le(0, 0);
+	orchis::assert_ge(0, 0);
     }
 
-    void membership(testicle::TC)
+    void membership(orchis::TC)
     {
 	const int v[] = { 1, 3, 5, 7, 9 };
 	std::set<int> s(v, v+5);
-	testicle::assert_in(s, 3);
-	testicle::assert_in(v, v+2, 3);
-	testicle::assert_not_in(v, v+1, 3);
-	testicle::assert_not_in(s, 4);
-	testicle::assert_not_in(s, 3.141592654);
+	orchis::assert_in(s, 3);
+	orchis::assert_in(v, v+2, 3);
+	orchis::assert_not_in(v, v+1, 3);
+	orchis::assert_not_in(s, 4);
+	orchis::assert_not_in(s, 3.141592654);
     }
 
     void not_a_test()
@@ -60,38 +60,38 @@ namespace will_pass {
 
 namespace will_fail {
 
-    void fixed(testicle::TC)
+    void fixed(orchis::TC)
     {
-	throw testicle::Failure("Hello, world!");
+	throw orchis::Failure("Hello, world!");
     }
 
-    void simple(testicle::TC)
+    void simple(orchis::TC)
     {
-	testicle::assert_(!"foo");
+	orchis::assert_(!"foo");
     }
 
-    void eq(testicle::TC)
+    void eq(orchis::TC)
     {
 	const std::string s("foo");
-	testicle::assert_eq(s, "bar");
+	orchis::assert_eq(s, "bar");
     }
 
-    void relational(testicle::TC)
+    void relational(orchis::TC)
     {
-	testicle::assert_ge(3, 3.141592654);
+	orchis::assert_ge(3, 3.141592654);
     }
 
-    void membership(testicle::TC)
+    void membership(orchis::TC)
     {
 	const int v[] = { 1, 3, 5, 7, 9 };
 	std::set<int> s(v, v+5);
-	testicle::assert_in(s, 4);
+	orchis::assert_in(s, 4);
     }
 }
 
 namespace will_give_error {
 
-    void simple(testicle::TC)
+    void simple(orchis::TC)
     {
 	throw "oops!";
     }

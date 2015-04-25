@@ -13,10 +13,10 @@ CPPFLAGS=-I.
 all:
 
 # Note that the building of example unit tests is a bit extra
-# complicated, since it cannot assume testicle has been installed
+# complicated, since it cannot assume orchis has been installed
 # properly.
 #
-# See the testicle(1) man page for how to integrate unit tests
+# See the orchis(1) man page for how to integrate unit tests
 # into a typical Makefile.
 
 .PHONY: check checkv
@@ -25,8 +25,8 @@ check: example
 checkv: example
 	valgrind -q ./example -v
 
-test.cc: libtests.a testicle
-	./testicle -o$@ libtests.a
+test.cc: libtests.a orchis
+	./orchis -o$@ libtests.a
 
 example: test.o libtests.a
 	$(CXX) $(CXXFLAGS) -o $@ test.o -L. -ltests
@@ -35,15 +35,15 @@ libtests.a: example.o
 libtests.a: example0.o
 	$(AR) -r $@ $^
 
-example.o: testicle.h
-example0.o: testicle.h
+example.o: orchis.h
+example0.o: orchis.h
 
 .PHONY: install
-install: testicle testicle.h testicle.1
+install: orchis orchis.h orchis.1
 	install -d $(INSTALLBASE)/{bin,man/man1,include}
-	install -m755 testicle $(INSTALLBASE)/bin/
-	install -m644 testicle.1 $(INSTALLBASE)/man/man1/
-	install -m644 testicle.h $(INSTALLBASE)/include/
+	install -m755 orchis $(INSTALLBASE)/bin/
+	install -m644 orchis.1 $(INSTALLBASE)/man/man1/
+	install -m644 orchis.h $(INSTALLBASE)/include/
 
 .PHONY: clean
 clean:

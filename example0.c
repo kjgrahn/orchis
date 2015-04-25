@@ -1,7 +1,7 @@
 /* Copyright (c) 2014 Jörgen Grahn.
  * All rights reserved.
  */
-#include <testicle.h>
+#include <orchis.h>
 
 
 void test_will_pass(void)
