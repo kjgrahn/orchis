@@ -1,6 +1,11 @@
 Release history of testicle.
 _________________________________________
 
+testicle 2.2 (2015-04-28):
+
+- Don't break when python is Python3, but keep support for
+  systems with Python 2.7.
+
 testicle 2.1 (2014-03-15):
 
 - Limited support for tests written in C, for when your interfaces

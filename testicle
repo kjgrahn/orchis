@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: iso-8859-1 -*-
 #
-# Copyright (c) 2007, 2008, 2011, 2013, 2014 Jörgen Grahn.
+# Copyright (c) 2007, 2008, 2011, 2013-2015 Jörgen Grahn.
 # All rights reserved.
 #
 """build C++ unit tests
@@ -494,7 +494,7 @@ if __name__ == "__main__":
                 testres.append(re.compile(value))
             elif opt=='--version':
                 w = sys.stdout.write
-                w("testicle 2.1\n"
+                w("testicle 2.2\n"
                   "Copyright (c) 2007, 2008, 2011, 2013--2015 Jörgen Grahn.\n"
                   "All rights reserved.\n")
                 sys.exit(0)
