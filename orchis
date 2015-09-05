@@ -506,7 +506,7 @@ if __name__ == "__main__":
             raise ValueError('no input file specified')
     except (getopt.GetoptError, ValueError, re.error) as s:
         w = sys.stderr.write
-        w('%s\n%s\n', s, usage)
+        w('%s\n%s\n' % (s, usage))
         sys.exit(1)
 
     if not testres:
