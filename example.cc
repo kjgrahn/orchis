@@ -8,7 +8,7 @@
 
 void in_global_namespace(orchis::TC)
 {
-    orchis::assert_("ok");
+    orchis::assert_true("ok");
 }
 
 namespace will_pass {
@@ -17,14 +17,20 @@ namespace will_pass {
     {
     }
 
-    void simple(orchis::TC)
+    void underscore(orchis::TC)
     {
 	orchis::assert_("ok");
     }
 
+    void simple(orchis::TC)
+    {
+	orchis::assert_true("ok");
+	orchis::assert_false(1==2);
+    }
+
     void test_old_naming()
     {
-	orchis::assert_("ok");
+	orchis::assert_true("ok");
     }
 
     void eq(orchis::TC)
@@ -67,7 +73,7 @@ namespace will_fail {
 
     void simple(orchis::TC)
     {
-	orchis::assert_(!"foo");
+	orchis::assert_false("foo");
     }
 
     void eq(orchis::TC)

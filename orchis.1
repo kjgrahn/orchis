@@ -1,7 +1,7 @@
 .ss 12 0
 .hw name-space
 .
-.TH orchis 1 "APR 2015" "Orchis" "User Manuals"
+.TH orchis 1 "JAN 2016" "Orchis" "User Manuals"
 .
 .
 .SH "NAME"
@@ -72,6 +72,13 @@ Tests may be inside the global or any other named namespace.
 Arranging tests into a nested hierarchy of namespaces
 is the best way of grouping tests.
 .PP
+A test function may call other functions \- helper functions or
+functions which are the
+.I actual
+tests. Do whatever makes the tests as readable as possible.
+It's not uncommon to end up with a set of specialized assertion
+functions which make the test functions clearer.
+.PP
 Executing a test results in one out of three things:
 .IP \fB\s-2PASS\s0
 The function returns normally.
@@ -116,7 +123,8 @@ provides a number of templated assertions:
 #include <orchis.h>
 using namespace orchis;
 
-assert_(\fIval\fP);
+assert_true(\fIval\fP);	// synonym assert_(\fIval\fP)
+assert_false(\fIval\fP);
 assert_eq(\fIa\fP, \fIb\fP);	// a==b
 assert_neq(\fIa\fP, \fIb\fP);	// a!=b
 assert_lt(\fIa\fP, \fIb\fP);	// a<b

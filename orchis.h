@@ -5,7 +5,7 @@
  * The orchis::Failure exception, and assertions. See
  * orchis(1) for documentation.
  *
- * Copyright (c) 2011, 2012, 2013-2015 Jörgen Grahn
+ * Copyright (c) 2011, 2012, 2013-2016 Jörgen Grahn
  * All rights reserved.
  */
 #ifndef ORCHIS_H
@@ -66,11 +66,24 @@ namespace orchis {
 
 
     template<class T>
-    void assert_(const T& val) {
+    void assert_true(const T& val) {
 	if(val) return;
 	std::ostringstream ss;
 	ss << val;
 	throw Failure(ss);
+    }
+
+    template<class T>
+    void assert_false(const T& val) {
+	if(!val) return;
+	std::ostringstream ss;
+	ss << "!(" << val << ')';
+	throw Failure(ss);
+    }
+
+    template<class T>
+    void assert_(const T& val) {
+	assert_true(val);
     }
 
     template<class M, class N>
