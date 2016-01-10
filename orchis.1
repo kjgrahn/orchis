@@ -36,7 +36,7 @@ It works by invoking
 to find symbols likely to be tests in those object files.
 Compiling, linking and executing the tests
 is left to the user,
-through a Makefile or other means.
+through a Makefile or by other means.
 .PP
 Tests are normally written in C++,
 but the target of the tests (the system under test)
@@ -174,7 +174,7 @@ and
 .SS "Assertions in C tests"
 If your tests are written in C, the
 .B orchis::Failure
-exception is not available, and neither are the
+exception is of course not available, and neither are the
 .BR orchis::assert_\fIfoo ()
 utilities.
 Instead you use a traditional assertion macro:
