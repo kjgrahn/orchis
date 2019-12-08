@@ -2,3 +2,5 @@
 *.a
 example
 test.cc
+orchis
+dep/

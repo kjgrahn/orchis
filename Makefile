@@ -5,12 +5,18 @@
 SHELL=/bin/bash
 INSTALLBASE=/usr/local
 
-CXXFLAGS=-W -Wall -pedantic -std=c++98 -g -Os
+CXXFLAGS=-W -Wall -pedantic -std=c++11 -g -Os
 CFLAGS=-W -Wall -pedantic -std=c99 -g -Os
 CPPFLAGS=-I.
 
 .PHONY: all
-all:
+all: orchis
+
+orchis: orchis.o liborchis.a
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ orchis.o -L. -lorchis
+
+liborchis.a: tests.o
+	$(AR) -r $@ $^
 
 # Note that the building of example unit tests is a bit extra
 # complicated, since it cannot assume orchis has been installed
@@ -51,8 +57,26 @@ install: testicle.h testicle.1
 
 .PHONY: clean
 clean:
-	$(RM) *.pyc *.pyo
+	$(RM) orchis
+	$(RM) lib*.a
 	$(RM) example test.cc *.[oa]
+	$(RM) -r dep
 
 love:
 	@echo "not war?"
+
+$(shell mkdir -p dep)
+DEPFLAGS=-MT $@ -MMD -MP -MF dep/$*.Td
+COMPILE.cc=$(CXX) $(DEPFLAGS) $(CXXFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -c
+COMPILE.c=$(CC) $(DEPFLAGS) $(CFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -c
+
+%.o: %.cc
+	$(COMPILE.cc) $(OUTPUT_OPTION) $<
+	@mv dep/$*.{Td,d}
+
+%.o: %.c
+	$(COMPILE.c) $(OUTPUT_OPTION) $<
+	@mv dep/$*.{Td,d}
+
+dep/%.d: ;
+-include dep/*.d
