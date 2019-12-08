@@ -16,6 +16,7 @@ orchis: orchis.o liborchis.a
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ orchis.o -L. -lorchis
 
 liborchis.a: tests.o
+liborchis.a: popen.o
 	$(AR) -r $@ $^
 
 # Note that the building of example unit tests is a bit extra
