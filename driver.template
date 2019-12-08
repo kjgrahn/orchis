@@ -1,0 +1,276 @@
+#include <iostream>
+#include <algorithm>
+#include <vector>
+#include <cstring>
+#include <string>
+#include <unistd.h>
+#include <setjmp.h>
+
+#include <orchis.h>
+
+/* prototypes for the tests */
+#include prototypes
+
+static struct {
+    jmp_buf jmp;
+    char msg[500];
+} g;
+
+extern "C" void orchis_escape(const char* msg)
+{
+    strcpy(g.msg, msg);
+    longjmp(g.jmp, 1);
+}
+
+/* proxies for the tests */
+#include proxies
+
+namespace {
+
+    class Progress {
+    public:
+	Progress(std::ostream& os, bool verbose, int indent)
+	    : os_(os),
+	      verbose_(verbose),
+	      indent_(indent),
+	      pass_(0),
+	      fail_(0),
+	      error_(0)
+	{}
+
+	void begin(const char * name);
+	void pass();
+	void fail(const orchis::Failure& failure);
+	void error();
+	void done();
+	int rc() const { return fail_+error_!=0; }
+
+    private:
+	struct Problem {
+	    Problem(const std::string& name,
+		    const orchis::Failure& failure)
+		: name(name),
+		  failure(failure)
+	    {}
+	    std::string name;
+	    orchis::Failure failure;
+	};
+
+	std::ostream& os_;
+	const bool verbose_;
+	const int indent_;
+	int pass_;
+	int fail_;
+	int error_;
+	std::string current_;
+	std::vector<Problem> problems_;
+	std::vector<std::string> errors_;
+    };
+
+    void Progress::begin(const char * name)
+    {
+	current_ = name;
+	if(verbose_) {
+	   os_ << name
+	       << std::string(indent_ - std::strlen(name), ' ')
+	       << std::flush;
+	}
+    }
+
+    void Progress::pass()
+    {
+	pass_++;
+	if(verbose_) {
+	    os_ << "ok" << std::endl;
+	}
+	else {
+	    os_ << '.' << std::flush;
+	}
+    }
+
+    void Progress::fail(const orchis::Failure& failure)
+    {
+	fail_++;
+	if(verbose_) {
+	    os_ << "FAIL" << std::endl;
+	}
+	else {
+	    os_ << 'F' << std::flush;
+	}
+
+	problems_.push_back(Problem(current_, failure));
+    }
+
+    void Progress::error()
+    {
+	error_++;
+	if(verbose_) {
+	    os_ << "ERROR" << std::endl;
+	}
+	else {
+	    os_ << 'E' << std::flush;
+	}
+
+	errors_.push_back(current_);
+    }
+
+    void Progress::done()
+    {
+	static const char hr[] = "----------------------------------------"
+				 "------------------------------\n";
+
+	if(!verbose_) {
+	    os_ << '\n';
+	}
+	os_ << hr;
+
+	for(std::vector<Problem>::const_iterator i = problems_.begin();
+	    i != problems_.end();
+	    ++i) {
+	    os_ << i->name << '\n'
+		<< i->failure << '\n'
+		<< hr;
+	}
+
+	for(std::vector<std::string>::const_iterator i = errors_.begin();
+	    i != errors_.end();
+	    ++i) {
+	    os_ << *i << '\n'
+		<< "Error." << '\n'
+		<< hr;
+	}
+
+	if(fail_+error_ == 0) {
+	    os_ << "OK (" << pass_ << " tests)\n";
+	}
+	else {
+	    int total = pass_ + fail_ + error_;
+	    os_ << "FAILED (" << total << " tests; "
+		<< fail_ << " fail, "
+		<< error_ <<" error)\n";
+	}
+    }
+}
+
+namespace {
+
+    struct Entry {
+	const char * name;
+	void (*f)(orchis::TC);
+    };
+
+
+    class NonMatch {
+    public:
+	NonMatch(char ** begin, char ** end)
+	    : begin_(begin),
+	      end_(end)
+	{}
+
+	bool operator() (const Entry& e) const;
+
+    private:
+	char ** const begin_;
+	char ** const end_;
+    };
+
+    bool NonMatch::operator() (const Entry& e) const
+    {
+	char ** i = begin_;
+	while(i!=end_) {
+	    if(std::strstr(e.name, *i)==e.name) return false;
+	    ++i;
+	}
+	return true;
+    }
+}
+
+
+int main(int argc, char ** argv)
+{
+    const char * const prog = argv[0];
+
+    static const Entry entries[] = {
+#include entries
+	{ 0, 0 },
+    };
+
+    static const size_t NENTRIES = sizeof(entries)/sizeof(entries[0]) - 1;
+
+    bool verbose = false;
+    size_t indentation = 0;
+    bool just_list = false;
+    bool bork_on_fail = false;
+
+    int ch;
+    while((ch = getopt(argc, argv, "vlc")) != -1) {
+	switch(ch) {
+	case 'v':
+	    verbose = true;
+	    for(size_t i=0; i<NENTRIES; ++i) {
+		indentation = std::max(indentation,
+				       std::strlen(entries[i].name) + 1);
+	    }
+	    break;
+	case 'l':
+	    just_list = true;
+	    break;
+	case 'c':
+	    bork_on_fail = true;
+	    break;
+	case '?':
+	default:
+	    std::cerr << "usage: " << prog << " [-vc] [pattern ...]\n"
+		      << "	 " << prog << " -l [pattern ...]\n";
+	    return 0;
+	}
+    }
+
+    std::vector<Entry> chosen(entries, entries+NENTRIES);
+    if(optind!=argc) {
+	chosen.erase(std::remove_if(chosen.begin(), chosen.end(),
+				    NonMatch(argv+optind, argv+argc)),
+		     chosen.end());
+    }
+
+    if(just_list) {
+	for(std::vector<Entry>::const_iterator i = chosen.begin();
+	    i!=chosen.end();
+	    ++i) {
+	    std::cout << i->name << '\n';
+	}
+	return 0;
+    }
+
+    Progress p(std::cout, verbose, indentation);
+    static const orchis::TC dummy;
+
+    for(std::vector<Entry>::const_iterator i = chosen.begin();
+	i!=chosen.end();
+	++i) {
+
+	const Entry& e = *i;
+
+	p.begin(e.name);
+
+	if(bork_on_fail) {
+	    e.f(dummy);
+	    p.pass();
+	}
+	else {
+	    try {
+		e.f(dummy);
+		p.pass();
+	    }
+	    catch(orchis::Failure& failure) {
+		p.fail(failure);
+	    }
+	    catch(...) {
+		p.error();
+	    }
+	}
+    }
+    p.done();
+
+    return p.rc();
+}
