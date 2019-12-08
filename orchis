@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: iso-8859-1 -*-
 #
-# Copyright (c) 2007, 2008, 2011, 2013-2015 Jörgen Grahn.
+# Copyright (c) 2007, 2008, 2011, 2013-2015, 2019 Jörgen Grahn.
 # All rights reserved.
 #
 """build C++ unit tests
@@ -126,18 +126,14 @@ class Namespace(object):
             ss.append(ns.name)
             ns.array(f, ss)
 
-def matches(res, s):
-    for re in res:
-        if re.match(s): return True
-    return False
-
-def find_tests(infiles, testres):
+def find_tests(infiles):
     """Find and return all symbols foo(args) matching
     - something(orchis::TC)
-    - any of the REs 'testres'
+    - testsomething'
     in object files 'infiles'.  Returned as a Namespace, i.e.
     a tree with test cases sprinkled here and there.
     """
+    testre = re.compile(r'^(.+::)?test\w*$')
     vanillare = re.compile(r'([\w:]+)\(orchis::TC\)$')
     legacyre = re.compile(r'([\w:]+)\((?:void)?\)$')
     heirloomre = re.compile(r'(\w+)$')
@@ -158,7 +154,7 @@ def find_tests(infiles, testres):
         m = legacyre.match(tc)
         if m:
             tc = m.group(1)
-            if matches(testres, tc):
+            if testre.match(tc):
                 tc = tc.split('::')
                 ns = top.add(tc[:-1])
                 ns.append(Legacy(tc[-1]))
@@ -166,7 +162,7 @@ def find_tests(infiles, testres):
         m = heirloomre.match(tc)
         if m:
             tc = m.group(1)
-            if matches(testres, tc):
+            if testre.match(tc):
                 ns = top
                 ns.append(Heirloom(tc))
             continue
@@ -478,24 +474,21 @@ if __name__ == "__main__":
     import getopt
 
     prog = os.path.split(sys.argv[0])[1]
-    usage = ('usage: %(prog)s [-o outfile] [--tests=pattern] ... infile ...\n'
+    usage = ('usage: %(prog)s [-o outfile] infile ...\n'
              '       %(prog)s --help\n'
              '       %(prog)s --version') % locals()
     outfile = 'test.cc'
-    testres = []
 
     try:
         opts, infiles = getopt.getopt(sys.argv[1:], 'o:',
-                                    ['tests=', 'version', 'help'])
+                                    ['version', 'help'])
         for opt, value in opts:
             if opt=='-o':
                 outfile = value
-            elif opt=='--tests':
-                testres.append(re.compile(value))
             elif opt=='--version':
                 w = sys.stdout.write
                 w("orchis 2.3\n"
-                  "Copyright (c) 2007, 2008, 2011, 2013--2015 Jörgen Grahn.\n"
+                  "Copyright (c) 2007, 2008, 2011, 2013--2015, 2019 Jörgen Grahn.\n"
                   "All rights reserved.\n")
                 sys.exit(0)
             elif opt=='--help':
@@ -509,10 +502,7 @@ if __name__ == "__main__":
         w('%s\n%s\n' % (s, usage))
         sys.exit(1)
 
-    if not testres:
-        testres.append(re.compile(r'^(.+::)?test\w*$'))
-
-    top = find_tests(infiles, testres)
+    top = find_tests(infiles)
 
     of = open(outfile, 'w')
     source(top, of)

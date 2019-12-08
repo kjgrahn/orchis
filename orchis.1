@@ -1,7 +1,7 @@
 .ss 12 0
 .hw name-space
 .
-.TH orchis 1 "DEC 2018" "Orchis" "User Manuals"
+.TH orchis 1 "DEC 2019" "Orchis" "User Manuals"
 .
 .
 .SH "NAME"
@@ -12,8 +12,6 @@ orchis \- build C++ or C unit tests
 .B orchis
 .RB [ \-o
 .IR outfile ]
-.RB [ --tests = \fIpattern ]
-\&...
 .I infile
 \&...
 .br
@@ -245,21 +243,6 @@ tests: test.o libfoo.a libtest.a
 Name the C++ source test driver.
 If not provided, it will be named, simply,
 .BR test.cc .
-.
-.
-.IP \fB--tests=\fIpattern
-Assume symbols matching the Perl-compatible regular expression
-.I pattern
-are tests, instead of any function, in any namespace,
-whose name starts with
-.BR test .
-This option can be repeated to make it easier to say
-\[lq]this pattern or that pattern\[rq].
-.
-.IP
-Test functions which take a
-.I orchis::TC
-argument are always included.
 .
 .
 .IP \fB--help
