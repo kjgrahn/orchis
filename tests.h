@@ -7,12 +7,22 @@
 #define ORCHIS_TESTS_H
 
 #include <iosfwd>
+#include <vector>
+#include <string>
 
+/**
+ * Tests, as found as symbols in a set of object files or archives.
+ *
+ * test_foo T                 C test
+ * foo::bar(orchis::TC) T     normal C++ test
+ * foo::test_bar() T          old-style C++ test
+ */
 class Tests {
 public:
-    template<class T>
-	Tests(std::ostream&, T) : bad(false) {}
-    bool bad;
+    Tests(std::ostream& err, const std::vector<std::string>& objects);
+    bool bad = false;
 };
+
+void generate(std::ostream& os, const Tests& tests);
 
 #endif
