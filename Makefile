@@ -17,6 +17,7 @@ orchis: orchis.o liborchis.a
 
 liborchis.a: tests.o
 liborchis.a: popen.o
+liborchis.a: split.o
 	$(AR) -r $@ $^
 
 # Note that the building of example unit tests is a bit extra
@@ -35,15 +36,13 @@ checkv: example
 test.cc: libtests.a orchis
 	./orchis -o$@ libtests.a
 
-example: test.o libtests.a
-	$(CXX) $(CXXFLAGS) -o $@ test.o -L. -ltests
+example: test.o libtests.a liborchis.a
+	$(CXX) $(CXXFLAGS) -o $@ test.o -L. -ltests -lorchis
 
 libtests.a: example.o
 libtests.a: example0.o
+libtests.a: test/split.o
 	$(AR) -r $@ $^
-
-example.o: orchis.h
-example0.o: orchis.h
 
 .PHONY: install
 install: orchis orchis.h orchis.1
@@ -60,13 +59,13 @@ install: testicle.h testicle.1
 clean:
 	$(RM) orchis
 	$(RM) lib*.a
-	$(RM) example test.cc *.[oa]
+	$(RM) example test.cc *.o test/*.o
 	$(RM) -r dep
 
 love:
 	@echo "not war?"
 
-$(shell mkdir -p dep)
+$(shell mkdir -p dep/test)
 DEPFLAGS=-MT $@ -MMD -MP -MF dep/$*.Td
 COMPILE.cc=$(CXX) $(DEPFLAGS) $(CXXFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -c
 COMPILE.c=$(CC) $(DEPFLAGS) $(CFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -c
@@ -80,4 +79,6 @@ COMPILE.c=$(CC) $(DEPFLAGS) $(CFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -c
 	@mv dep/$*.{Td,d}
 
 dep/%.d: ;
+dep/test/%.d: ;
 -include dep/*.d
+-include dep/test/*.d
