@@ -32,5 +32,3 @@ Tests::Tests(std::ostream&, const std::vector<std::string>& objects)
     }
     bad = nm.wait();
 }
-
-void generate(std::ostream& os, const Tests& tests) {}

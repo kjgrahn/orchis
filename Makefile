@@ -16,6 +16,7 @@ orchis: orchis.o liborchis.a
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ orchis.o -L. -lorchis
 
 liborchis.a: tests.o
+liborchis.a: generate.o
 liborchis.a: popen.o
 liborchis.a: split.o
 	$(AR) -r $@ $^
