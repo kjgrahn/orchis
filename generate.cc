@@ -6,13 +6,64 @@
 #include "tests.h"
 
 #include "split.h"
+#include "namespace.h"
 #include <fstream>
 
 namespace {
 
-    void prototypes(std::ostream& os, const Tests& tests) {}
-    void proxies(std::ostream& os, const Tests& tests) {}
-    void entries(std::ostream& os, const Tests& tests) {}
+    void prototypes(std::ostream& os, const Tests& tests)
+    {
+	Namespace ns {os};
+
+	for (const auto f: tests) {
+	    switch (f.kind) {
+	    case 'o':
+		os << ns.open(f.ns)
+		   << "void " << f.fun << "(orchis::TC);\n";
+		break;
+	    case 'O':
+		os << ns.open(f.ns)
+		   << "void " << f.fun << "();\n";
+		break;
+	    case 'c':
+		os << ns.open(f.ns)
+		   << "extern \"C\" void " << f.fun << "(void);\n";
+		break;
+	    }
+	}
+    }
+
+    void proxies(std::ostream& os, const Tests& tests)
+    {
+	Namespace ns {os};
+	std::string indent;
+
+	for (const auto f: tests) {
+	    switch (f.kind) {
+	    case 'O':
+		indent = ns.open(f.ns);
+		os << indent << "static void " << f.fun << "(orchis::TC) {\n"
+		   << indent << "    " << f.fun << "();\n"
+		   << indent << "}\n";
+		break;
+	    case 'c':
+		indent = ns.open(f.ns);
+		os << indent << "static void " << f.fun << "(orchis::TC) {\n"
+		   << indent << "    if(setjmp(g.jmp)) throw orchis::Failure(g.msg);\n"
+		   << indent << "    " << f.fun << "();\n"
+		   << indent << "}\n";
+		break;
+	    }
+	}
+    }
+
+    void entries(std::ostream& os, const Tests& tests)
+    {
+	for (const auto f: tests) {
+	    os << "\t{ \"" << f.ns_f
+	       << "\", " << f.ns_f << " },\n";
+	}
+    }
 }
 
 /**
