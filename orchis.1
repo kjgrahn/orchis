@@ -12,6 +12,8 @@ orchis \- build C++ or C unit tests
 .B orchis
 .RB [ \-o
 .IR outfile ]
+.RB [ \-t
+.IR template ]
 .I infile
 \&...
 .br
@@ -243,6 +245,13 @@ tests: test.o libfoo.a libtest.a
 Name the C++ source test driver.
 If not provided, it will be named, simply,
 .BR test.cc .
+.
+.
+.IP \fB\-t\ \fItemplate
+The template for the C++ source test driver to be generated;
+by default
+.IR lib/driver.template .
+You can safely ignore this option.
 .
 .
 .IP \fB--help

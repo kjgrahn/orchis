@@ -21,6 +21,8 @@ liborchis.a: popen.o
 liborchis.a: split.o
 	$(AR) -r $@ $^
 
+orchis.o: CPPFLAGS+=-DINSTALLBASE=\"$(INSTALLBASE)\"
+
 # Note that the building of example unit tests is a bit extra
 # complicated, since it cannot assume orchis has been installed
 # properly.
@@ -35,7 +37,7 @@ checkv: example
 	valgrind -q ./example -v
 
 test.cc: libtests.a orchis
-	./orchis -o$@ libtests.a
+	./orchis -t driver.template -o$@ libtests.a
 
 example: test.o libtests.a liborchis.a
 	$(CXX) $(CXXFLAGS) -o $@ test.o -L. -ltests -lorchis

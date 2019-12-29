@@ -34,18 +34,19 @@
 #include <getopt.h>
 
 #include "tests.h"
+#include "split.h"
 
 
 int main(int argc, char ** argv)
 {
     const std::string prog = argv[0] ? argv[0] : "orchis";
     const std::string usage = std::string("usage: ")
-	+ prog + " [-o outfile] infile ...\n"
+	+ prog + " [-o outfile] [-t template] infile ...\n"
 	"       "
 	+ prog + " --help\n"
 	"       "
 	+ prog + " --version";
-    const char optstring[] = "o:";
+    const char optstring[] = "o:t:";
     const struct option long_options[] = {
 	{"help", 0, 0, 'H'},
 	{"version", 0, 0, 'V'},
@@ -56,12 +57,16 @@ int main(int argc, char ** argv)
     std::cout.sync_with_stdio(false);
 
     std::string outfile = "test.cc";
+    std::string drivert = join('/', {INSTALLBASE, "lib", "orchis", "driver.template"});
 
     int ch;
     while ((ch = getopt_long(argc, argv,
 			     optstring,
 			     &long_options[0], 0)) != -1) {
 	switch(ch) {
+	case 't':
+	    drivert = optarg;
+	    break;
 	case 'o':
 	    outfile = optarg;
 	    break;
@@ -98,7 +103,7 @@ int main(int argc, char ** argv)
 	std::cerr << "error: cannot open " << outfile << " for writing: "
 		  << std::strerror(errno) << '\n';
     }
-    generate(out, tests);
+    generate(out, drivert, tests);
 
     return 0;
 }

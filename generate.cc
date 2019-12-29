@@ -15,9 +15,15 @@ namespace {
     void entries(std::ostream& os, const Tests& tests) {}
 }
 
-void generate(std::ostream& os, const Tests& tests)
+/**
+ * Write the test driver to 'os', based on the list of tests and the
+ * name of a file containing a template for the driver (main() and so
+ * on).
+ */
+void generate(std::ostream& os,
+	      const std::string& drivert, const Tests& tests)
 {
-    std::ifstream is("driver.template");
+    std::ifstream is(drivert);
     std::string s;
 
     while(getline(is, s)) {

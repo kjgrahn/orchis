@@ -23,6 +23,7 @@ public:
     bool bad = false;
 };
 
-void generate(std::ostream& os, const Tests& tests);
+void generate(std::ostream& os,
+	      const std::string& drivert, const Tests& tests);
 
 #endif
