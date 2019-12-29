@@ -18,6 +18,13 @@ namespace splitjoin {
 	orchis::assert_eq(join('+', v), ref);
     }
 
+    void assert_splits(const char* delim,
+		       const std::string& s, const std::string& ref)
+    {
+	const auto v = split(delim, s);
+	orchis::assert_eq(join('+', v), ref);
+    }
+
     void empty(TC)
     {
 	assert_splits("", "");
@@ -56,5 +63,17 @@ namespace splitjoin {
 	assert_splits(s, 2, "foo+bar  baz  bat");
 	assert_splits(s, 1, "foo  bar  baz  bat");
 	assert_splits(s, 0, "foo+bar+baz+bat");
+    }
+
+    void delimited(TC)
+    {
+	assert_splits("::", "", "");
+	assert_splits("::", "foo", "foo");
+	assert_splits("::", "foo::bar", "foo+bar");
+	assert_splits("::", "foo::bar::baz", "foo+bar+baz");
+	assert_splits("::", "::foo", "+foo");
+	assert_splits("::", "foo::", "foo+");
+	assert_splits("::", "foo::::bar", "foo++bar");
+	assert_splits("::", "::", "+");
     }
 }

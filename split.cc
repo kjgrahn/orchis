@@ -6,6 +6,7 @@
 #include "split.h"
 
 #include <cctype>
+#include <algorithm>
 #include <iostream>
 #include <sstream>
 
@@ -78,6 +79,35 @@ std::vector<std::string> split(const char* a, const char* b,
 	auto c = non_ws(a, b);
 	acc.emplace_back(a, c);
 	a = ws(c, b);
+    }
+
+    return acc;
+}
+
+/**
+ * Split 's' on 'delimiter'.  If the delimiter occurs N times in s,
+ * s is going to be split into N+1 possibly empty pieces, except the
+ * empty string is split into 0 pieces.
+ *
+ * This is quite different from splitting on blankspace.
+ */
+std::vector<std::string> split(const std::string& delimiter,
+			       const std::string& s)
+{
+    std::vector<std::string> acc;
+
+    auto a = begin(s);
+    const auto b = end(s);
+    while (a!=b) {
+	auto c = std::search(a, b, begin(delimiter), end(delimiter));
+	acc.emplace_back(a, c);
+	if (c!=b) {
+	    a = c + delimiter.size();
+	    if (a==b) acc.emplace_back(a, b);
+	}
+	else {
+	    a = c;
+	}
     }
 
     return acc;
