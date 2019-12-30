@@ -17,6 +17,7 @@ orchis: orchis.o liborchis.a
 
 liborchis.a: tests.o
 liborchis.a: generate.o
+liborchis.a: namespace.o
 liborchis.a: popen.o
 liborchis.a: split.o
 	$(AR) -r $@ $^
@@ -45,6 +46,7 @@ example: test.o libtests.a liborchis.a
 libtests.a: example.o
 libtests.a: example0.o
 libtests.a: test/split.o
+libtests.a: test/namespace.o
 	$(AR) -r $@ $^
 
 .PHONY: install
