@@ -1,6 +1,8 @@
 *.o
 *.a
 example
+tests
+examples.cc
 test.cc
 orchis
 dep/

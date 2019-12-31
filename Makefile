@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2007, 2008, 2015 Jörgen Grahn.
+# Copyright (c) 2007, 2008, 2015, 2019 Jörgen Grahn.
 # All rights reserved.
 
 SHELL=/bin/bash
@@ -11,6 +11,8 @@ CPPFLAGS=-I.
 
 .PHONY: all
 all: orchis
+all: tests
+all: example
 
 orchis: orchis.o liborchis.a
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ orchis.o -L. -lorchis
@@ -32,19 +34,29 @@ orchis.o: CPPFLAGS+=-DINSTALLBASE=\"$(INSTALLBASE)\"
 # into a typical Makefile.
 
 .PHONY: check checkv
-check: example
+check: tests example
+	./tests
 	./example
-checkv: example
+checkv: tests example
+	valgrind -q ./tests -v
 	valgrind -q ./example -v
 
 test.cc: libtests.a orchis
 	./orchis -t driver.template -o$@ libtests.a
 
-example: test.o libtests.a liborchis.a
+examples.cc: libexample.a orchis
+	./orchis -t driver.template -o$@ libexample.a
+
+tests: test.o libtests.a liborchis.a
 	$(CXX) $(CXXFLAGS) -o $@ test.o -L. -ltests -lorchis
 
-libtests.a: example.o
-libtests.a: example0.o
+example: examples.o libexample.a liborchis.a
+	$(CXX) $(CXXFLAGS) -o $@ examples.o -L. -lexample -lorchis
+
+libexample.a: example.o
+libexample.a: example0.o
+	$(AR) -r $@ $^
+
 libtests.a: test/split.o
 libtests.a: test/namespace.o
 	$(AR) -r $@ $^
@@ -64,7 +76,7 @@ install: testicle.h testicle.1
 clean:
 	$(RM) orchis
 	$(RM) lib*.a
-	$(RM) example test.cc *.o test/*.o
+	$(RM) example tests test.cc examples.cc *.o test/*.o
 	$(RM) -r dep
 
 love:
