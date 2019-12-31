@@ -41,10 +41,10 @@ checkv: tests example
 	valgrind -q ./tests -v
 	valgrind -q ./example -v
 
-test.cc: libtests.a orchis
+test.cc: orchis driver.template libtests.a
 	./orchis -t driver.template -o$@ libtests.a
 
-examples.cc: libexample.a orchis
+examples.cc: orchis driver.template libexample.a
 	./orchis -t driver.template -o$@ libexample.a
 
 tests: test.o libtests.a liborchis.a
@@ -63,11 +63,13 @@ libtests.a: test/namespace.o
 
 .PHONY: install
 install: orchis orchis.h orchis.1
+install: driver.template
 install: testicle.h testicle.1
-	install -d $(INSTALLBASE)/{bin,man/man1,include}
+	install -d $(INSTALLBASE)/{bin,man/man1,include,lib/orchis}
 	install -m755 orchis $(INSTALLBASE)/bin/
 	install -m644 orchis.1 $(INSTALLBASE)/man/man1/
 	install -m644 orchis.h $(INSTALLBASE)/include/
+	install -m644 driver.template $(INSTALLBASE)/lib/orchis/
 	ln -f $(INSTALLBASE)/bin/{orchis,testicle}
 	install -m644 testicle.1 $(INSTALLBASE)/man/man1/
 	install -m644 testicle.h $(INSTALLBASE)/include/
