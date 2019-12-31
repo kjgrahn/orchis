@@ -305,6 +305,13 @@ as an outcome from a test. This was modeled on
 but the things this covers in Python
 tend to map to quick and painless crashes
 \- or compile-time errors \- in C++.
+.PP
+If your build tool has problems dealing with generated source code,
+tough luck.
+GNU
+.BR make (1)
+has no such limitations, and that's the only tool I use.
+Perhaps there's an extension mechanism for other inferior tools.
 .SS "C tests"
 The limited support for tests written in C was created after an
 attempt I did to test a C code base.  Header files may (especially if they
@@ -357,4 +364,5 @@ This software is released under the
 .
 .
 .SH "SEE ALSO"
-.BR nm (1).
+.BR nm (1),
+.BR make (1).
