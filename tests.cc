@@ -34,10 +34,10 @@ Function::Function(const std::string& s)
     ns.pop_back();
 
     if (arg=="") {
-	if (starts_with(fun, "test_")) kind = 'c';
+	if (starts_with(fun, "test")) kind = 'c';
     }
     else if (arg=="()") {
-	if (starts_with(fun, "test_")) kind = 'O';
+	if (starts_with(fun, "test")) kind = 'O';
     }
     else if (arg=="(orchis::TC)") {
 	kind = 'o';
