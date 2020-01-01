@@ -58,7 +58,7 @@ namespace nspace {
 		  "namespace foo {\n"
 		  "    sth;\n"
 		  "    namespace bar {\n"
-		  "        sth;\n"
+		  "\t"    "sth;\n"
 		  "    }\n"
 		  "}\n");
     }
@@ -76,15 +76,15 @@ namespace nspace {
 	assert_eq(oss.str(),
 		  "namespace foo {\n"
 		  "    namespace bar {\n"
-		  "        sth;\n"
+		  "\t"    "sth;\n"
 		  "    }\n"
 		  "    namespace baz {\n"
-		  "        sth;\n"
+		  "\t"    "sth;\n"
 		  "    }\n"
 		  "}\n"
 		  "namespace bat {\n"
 		  "    namespace fred {\n"
-		  "        sth;\n"
+		  "\t"    "sth;\n"
 		  "    }\n"
 		  "}\n"
 		  "sth;\n");

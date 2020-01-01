@@ -19,7 +19,8 @@ namespace {
 
     std::string indent(unsigned n)
     {
-	return std::string(n*4, ' ');
+	n *= 4;
+	return std::string(n/8, '\t') + std::string(n%8, ' ');
     }
 }
 
