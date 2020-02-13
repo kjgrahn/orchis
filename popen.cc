@@ -10,6 +10,7 @@
 #include <cstring>
 
 #include <unistd.h>
+#include <fcntl.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 
@@ -47,6 +48,7 @@ Popen::Popen(const std::vector<std::string>& argv)
 	int writefd = pipefd[1];
 	close(pipefd[0]);
 	close(0);
+	open("/dev/null", O_RDONLY);
 	const auto args = argv_of(argv);
 	dup2(writefd, 1);
 	execvp(args[0], &args[0]);
