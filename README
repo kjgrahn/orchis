@@ -1,0 +1,49 @@
+Quoting parts of the man page:
+
+NAME
+       orchis - build C++ or C unit tests
+
+SYNOPSIS
+       orchis [-o outfile] [-t template] infile ...
+       orchis --help
+       orchis --version
+
+DESCRIPTION
+       orchis accepts one or more object files or archive libraries containing
+       test functions (referred to here as tests) and generates C++ source for
+       driving those tests.
+
+       It  works by invoking nm(1) to find symbols likely to be tests in those
+       object files. Compiling, linking and executing the tests is left to the
+       user, through a Makefile or by other means.
+
+       Tests  are  normally  written  in C++, but the target of the tests (the
+       system under test) can be written in any language, as long as it can be
+       linked  into a C++ program. Specifically, this means that you can write
+       tests for C source code.
+
+       Tests written in C are also supported, although with reduced  function-
+       ality. This can be useful if you're uncomfortable with even simple C++,
+       or if the target is not easily callable from C++ (perhaps header  files
+       you  need  to include handle things such as enums or void pointers in a
+       way that's not C++ compatible).
+
+NOTES
+       The  primary  aim  of orchis is to make it easy for lazy users to add a
+       test: easy to understand how to do it, with no header file to  keep  in
+       sync, and no need to somehow register each test.
+
+       The  primary weakness is, I suppose, in diagnostics. You may get to see
+       the values involved in a failing test, but you don't get the  file  and
+       line  number.  This  design was chosen under the assumptions that tests
+       don't normally fail, and that if they do, you want  a  debuggable  core
+       dump anyway - the -c option.
+
+AUTHOR
+       Jörgen Grahn <grahn+src@snipabacken.se>
+
+LICENSE
+       This software is released under the Modified BSD License.
+
+SEE ALSO
+       nm(1), make(1).
