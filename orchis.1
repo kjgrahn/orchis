@@ -169,6 +169,9 @@ correlation between
 .I operator<\~()
 and
 .IR operator>=\~() .
+Also remember the meaning of the word
+.IR assert :
+to boldly claim that something is true.
 .
 .
 .SS "Assertions in C tests"
@@ -211,15 +214,14 @@ are printed to standard error.
 This option also prints test names as they are executed.
 .IP \fB\-c
 Run the tests without catching exceptions,
-so that a failure or error causes the program to crash and generate a core dump
-(or whatever your environment provides for post mortem debugging).
+so that a failure or error causes the program to crash and generate a core dump.
 .IP \fB\-l
 List the tests without executing them.
 .
 .
 .SS "The Makefile"
 A Makefile
-is a reasonable way of driving unit tests.
+is a good way of driving unit tests.
 The interesting portions might look like this:
 .IP
 .if t .ft I
@@ -234,8 +236,13 @@ test.cc: libtest.a
 	orchis -o$@ $^
 
 tests: test.o libfoo.a libtest.a
-	$(CXX) $(CXXFLAGS) -o $@ test.o -L. -ltest -lfoo
+	$(CXX) $(CXXFLAGS) -o $@ $< -L. -ltest -lfoo
 .fi
+.PP
+Then it's just a matter of populating
+.I libtest.a
+with tests which exercise features provided by
+.IR libfoo.a .
 .
 .
 .SH "OPTIONS"
@@ -267,7 +274,7 @@ Print version information and exit.
 if the test program is generated correctly.
 .
 .
-.SH "BUGS"
+.SH "NOTES"
 Test functions cannot be template instantiations.
 You cannot write e.g.
 .IR "test_something<T>(orchis::TC)" ,
@@ -281,17 +288,13 @@ This was originally a simple oversight, but it won't be fixed
 since the resulting test names would be too long and unwieldy to be useful.
 You're welcome to write templated tests, but you have to instantiate
 them in wrapper test cases.
-.
-.
-.SH "NOTES"
+.PP
 The primary aim of
 .B orchis
 is to make it easy for lazy users to add a test:
 easy to understand how to do it,
 with no header file to keep in sync,
-and no need to somehow register each test
-(with the risk of forgetting to do it, and believing the
-test passes when in fact it never gets executed).
+and no need to somehow register each test.
 .PP
 The primary weakness is, I suppose, in diagnostics.
 You may get to see the values involved in a failing test,
@@ -307,6 +310,12 @@ i.e. the state when the exception was thrown.
 It seems to work well with gcc, and I suppose self-preservation makes most
 compiler vendors enable post mortem inspection of unexpected exceptions.)
 .PP
+The assertion mechanism also favors code where types are printable, i.e. there
+is an
+.IR "ostream << T" .
+It's a convention that's natural to me, but perhaps not to others, especially not
+to people whose programs don't deal with text.
+.PP
 It might have been a mistake to include
 .B \s-2ERROR\s0
 as an outcome from a test. This was modeled on
@@ -320,7 +329,7 @@ tough luck.
 GNU
 .BR make (1)
 has no such limitations, and that's the only tool I use.
-Perhaps there's an extension mechanism for other inferior tools.
+Perhaps there's an extension mechanism for other tools.
 .SS "C tests"
 The limited support for tests written in C was created after an
 attempt I did to test a C code base.  Header files may (especially if they
