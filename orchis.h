@@ -5,7 +5,7 @@
  * The orchis::Failure exception, and assertions. See
  * orchis(1) for documentation.
  *
- * Copyright (c) 2011, 2012, 2013-2016 Jörgen Grahn
+ * Copyright (c) 2011, 2012, 2013-2016, 2023 Jörgen Grahn
  * All rights reserved.
  */
 #ifndef ORCHIS_H
@@ -46,6 +46,12 @@ namespace orchis {
     inline
     std::ostream& operator<< (std::ostream& os, const Failure& e) {
 	return os << "Failure: " << e.what;
+    }
+
+    template <class T>
+    [[noreturn]] void fail(const T& msg)
+    {
+	throw Failure {msg};
     }
 
     template<class Iter>

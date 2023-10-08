@@ -71,6 +71,11 @@ namespace will_fail {
 	throw orchis::Failure("Hello, world!");
     }
 
+    void fail(orchis::TC)
+    {
+	orchis::fail("Hello, world!");
+    }
+
     void simple(orchis::TC)
     {
 	orchis::assert_false("foo");
