@@ -75,8 +75,8 @@ int main(int argc, char ** argv)
 	    return 0;
 	    break;
 	case 'V':
-	    std::cout << "orchis 3.2\n"
-		      << "Copyright (c) 2007, 2008, 2011, 2013--2015, 2019--2020 Jörgen Grahn.\n"
+	    std::cout << "orchis 3.3\n"
+		      << "Copyright (c) 2007, 2008, 2011, 2013--2015, 2019--2020, 2023 Jörgen Grahn.\n"
 		      << "All rights reserved.\n";
 	    return 0;
 	    break;
